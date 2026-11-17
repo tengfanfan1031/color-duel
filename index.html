@@ -106,7 +106,38 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
 .legend div { padding: 6px 0; border-radius: 6px; background: var(--bg); font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .board.shake, .flash.show { animation: none; } .track i { transition: none; } }
 </style>
-<style>body{margin:0}</style>
+<style>
+body{margin:0}
+/* ---------- 電視觀戰模式：大字、高對比、雙盤面並排 ---------- */
+body.tv .wrap{display:none}
+#tv{max-width:1760px;margin:0 auto;display:flex;flex-direction:column;gap:2.2vh}
+.tv-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px 24px}
+.tv-title{font-family:var(--font-display);font-weight:700;font-size:clamp(26px,3.2vw,60px);line-height:1;margin:0}
+.tv-join{font-size:clamp(14px,1.5vw,28px);color:var(--muted);display:flex;align-items:baseline;gap:.5em;flex-wrap:wrap}
+.tv-join b{font-family:var(--font-display);color:var(--ink);letter-spacing:.18em;font-size:1.6em}
+.tv-join .url{color:var(--ink);font-weight:700}
+.tv-banner{min-height:1.2em;text-align:center;font-family:var(--font-display);font-weight:700;font-size:clamp(20px,2.8vw,54px);line-height:1.2}
+.tv-banner small{display:block;font-family:var(--font-body);font-weight:500;font-size:.45em;color:var(--muted)}
+.tv-grid{display:grid;grid-template-columns:1fr 1fr;gap:4vw}
+@media (max-width:760px){.tv-grid{grid-template-columns:1fr}}
+.tv-p{display:flex;flex-direction:column;gap:1.2vh;min-width:0}
+.tv-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.tv-name{font-weight:900;font-size:clamp(22px,2.8vw,52px);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tv-time{font-family:var(--font-display);font-weight:700;font-size:clamp(22px,2.8vw,52px);font-variant-numeric:tabular-nums}
+.tv-sub{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:clamp(13px,1.3vw,24px);font-variant-numeric:tabular-nums}
+.tv-sub .miss{color:var(--bad);font-weight:700}
+.tv-p .track{height:clamp(8px,1vh,16px)}
+.tv-stage{position:relative;width:min(100%,60vh);margin:0 auto}
+.tv-stage .board{cursor:default}
+.tv-stage .tile{cursor:default}
+.tv-stage .tile.hit{box-shadow:0 0 0 4px var(--ok) inset, 0 0 0 3px var(--ok)}
+.tv-cover{position:absolute;inset:0;display:grid;place-items:center;text-align:center;border-radius:14px;background:color-mix(in oklab,var(--panel) 88%,transparent);font-family:var(--font-display);font-weight:700;font-size:clamp(20px,3vw,56px)}
+.tv-cover small{display:block;font-family:var(--font-body);font-size:.45em;color:var(--muted);font-weight:500}
+.tv-flash{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-family:var(--font-display);font-weight:700;font-size:clamp(40px,7vw,130px);color:var(--bad);opacity:0}
+.tv-flash.show{animation:pop .7s}
+.tv-count{position:fixed;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:clamp(120px,24vw,420px);background:color-mix(in oklab,var(--bg) 70%,transparent);z-index:5}
+@media (prefers-reduced-motion: reduce){.tv-flash.show{animation:none}}
+</style>
 </head>
 <body>
 
@@ -129,13 +160,14 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
       <button id="soloBtn" class="ghost">Practice solo</button>
     </div>
     <div>
-      <label for="code">Or enter a room code from your opponent</label>
+      <label for="code">Or enter a room code</label>
       <div class="row">
         <input type="text" id="code" maxlength="6" autocomplete="off" placeholder="e.g. K7QH">
         <button id="joinBtn" class="ghost" style="flex:0 0 auto">Join</button>
+        <button id="tvBtn" class="ghost" style="flex:0 0 auto">Watch on TV</button>
       </div>
     </div>
-    <p class="hint" id="lobbyMsg">One player taps “Create room” and shares the code. The other enters it and taps “Join”.</p>
+    <p class="hint" id="lobbyMsg">One player taps “Create room” and shares the code. The other enters it and taps “Join”. To show the match on a big screen, open this page on the TV computer, enter the same code and tap “Watch on TV”.</p>
     <div class="legend" aria-label="Difficulty">
       <div>Lv 1–5<br>3–4 grid</div><div>Lv 6–11<br>5–6 grid</div><div>Lv 12–17<br>7–8 grid</div><div>Lv 18–21<br>9×9</div><div>Lv 22–25<br>10×10</div>
     </div>
@@ -149,6 +181,7 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
     </div>
     <div class="players" id="players"></div>
     <p class="hint" id="roomMsg">Waiting for an opponent…</p>
+    <p class="hint" id="tvNote" hidden></p>
     <button id="readyBtn">I’m ready</button>
   </section>
 
@@ -174,6 +207,20 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
     <div class="row"><button id="againBtn">Play again</button></div>
   </section>
 </div>
+
+<!-- 電視觀戰 -->
+<section id="tv" hidden>
+  <div class="tv-top">
+    <h1 class="tv-title">Color Duel</h1>
+    <div class="tv-join">Play at <span class="url" id="tvUrl"></span> · Room <b id="tvCode"></b></div>
+  </div>
+  <div class="tv-banner" id="tvBanner">Waiting for players…</div>
+  <div class="tv-grid">
+    <div class="tv-p" id="tvp0"></div>
+    <div class="tv-p" id="tvp1"></div>
+  </div>
+</section>
+<div class="tv-count" id="tvCount" hidden></div>
 <div class="flash" id="flash">+3s</div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -194,6 +241,8 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
   let players = [];
   let myIdx = 0;
   let game = null, curRid = null;
+  // 房主端：連進來的電視觀戰連線，以及目前回合（電視靠 seed 重建盤面）
+  let tvs = [], curRound = null;
 
   // ---------- 工具 ----------
   function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -220,7 +269,21 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
 
   // ---------- 連線（PeerJS，兩台瀏覽器直接互連）----------
   function send(msg) { try { if (conn && conn.open) conn.send(msg); } catch {} }
-  function sendMe() { send({ t: 'state', s: mine() }); }
+  function sendMe() { send({ t: 'state', s: mine() }); tvBroadcast(); }
+
+  // 房主把雙方狀態整包轉發給所有電視
+  function snapshot() {
+    return { t: 'tv', round: curRound, players: players.map(p => p && { nick: p.nick, ready: p.ready, rid: p.rid, level: p.level, done: p.done, time: p.time, wrong: p.wrong, gone: !!p.gone }) };
+  }
+  function tvBroadcast() {
+    if (!isHost || !tvs.length) return;
+    const s = snapshot();
+    tvs.forEach(c => { try { if (c.open) c.send(s); } catch {} });
+  }
+  function renderTvNote() {
+    $('tvNote').hidden = !tvs.length;
+    $('tvNote').textContent = tvs.length === 1 ? 'TV view connected.' : `${tvs.length} TV views connected.`;
+  }
 
   function needNick() {
     const nick = $('nick').value.trim();
@@ -229,7 +292,7 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
   }
   if (typeof Peer === 'undefined') { $('lobbyMsg').textContent = 'Could not load the multiplayer module. Check your connection and refresh. Solo practice still works.'; }
 
-  function lockLobby(on) { ['hostBtn','joinBtn','soloBtn'].forEach(id => $(id).disabled = on); }
+  function lockLobby(on) { ['hostBtn','joinBtn','soloBtn','tvBtn'].forEach(id => $(id).disabled = on); }
 
   $('hostBtn').onclick = () => {
     const nick = needNick(); if (!nick || typeof Peer === 'undefined') return;
@@ -243,6 +306,12 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
         show('room'); renderRoom(); lockLobby(false);
       });
       p.on('connection', c => {
+        if (c.metadata && c.metadata.role === 'tv') {
+          c.on('open', () => { tvs.push(c); renderTvNote(); try { c.send(snapshot()); } catch {} });
+          c.on('close', () => { tvs = tvs.filter(x => x !== c); renderTvNote(); });
+          c.on('error', () => {});
+          return;
+        }
         if (conn && conn.open) { c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 500); }); return; }
         bindConn(c);
       });
@@ -290,7 +359,7 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
       if (conn !== c) return;
       conn = null; setConn(false, 'Opponent left');
       if (isHost) players = [players[0]]; else if (players[0]) players[0].gone = true;
-      refresh();
+      tvBroadcast(); refresh();
     });
   }
 
@@ -301,7 +370,7 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
       const s = m.s; const o = players[1 - myIdx] || {};
       players[1 - myIdx] = { ...o, nick: String(s.nick || 'Opponent').slice(0, 12), ready: !!s.ready, rid: s.rid || null,
         level: Math.max(0, Math.min(LEVELS, +s.level || 0)), done: !!s.done, time: typeof s.time === 'number' ? s.time : null, wrong: +s.wrong || 0 };
-      if (isHost) maybeStart();
+      if (isHost) { maybeStart(); tvBroadcast(); }
       refresh();
     }
     if (m.t === 'start' && !isHost && m.id && m.id !== curRid && screen === 'room') startRound({ id: m.id, seed: m.seed });
@@ -312,13 +381,14 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
   function maybeStart() {
     if (screen !== 'room' || players.length < 2 || !players.every(p => p.ready)) return;
     const round = { id: 'r' + Date.now().toString(36), seed: Math.floor(Math.random() * 1e9) };
+    curRound = round;
     send({ t: 'start', ...round });
     startRound(round);
   }
 
   $('leaveBtn').onclick = () => {
-    try { conn?.close(); } catch {} try { peer?.destroy(); } catch {}
-    conn = null; peer = null; players = []; setConn(false, 'Offline'); show('lobby');
+    try { conn?.close(); } catch {} tvs.forEach(c => { try { c.close(); } catch {} }); try { peer?.destroy(); } catch {}
+    conn = null; peer = null; players = []; tvs = []; curRound = null; renderTvNote(); setConn(false, 'Offline'); show('lobby');
   };
 
   // ---------- 房間 ----------
@@ -449,6 +519,134 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
     if (solo) { startRound({ id: 'solo' + Date.now(), seed: Math.floor(Math.random()*1e9) }); return; }
     show('room'); renderRoom();
   };
+
+  // ---------- 電視觀戰模式 ----------
+  // 電視連到房主，收到雙方狀態後用同一個 seed 重建兩人當下的盤面
+  let tv = null;
+  const COLS = ['var(--p1)', 'var(--p2)'];
+
+  $('tvBtn').onclick = () => {
+    if (typeof Peer === 'undefined') return;
+    const code = $('code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length < 4) { $('lobbyMsg').textContent = 'Enter the 4-character room code shown on the host’s phone.'; $('code').focus(); return; }
+    lockLobby(true); $('lobbyMsg').textContent = 'Connecting the TV view…';
+    const p = new Peer();
+    const timer = setTimeout(() => { if (!tv) { $('lobbyMsg').textContent = 'Could not reach that room. Check the code and try again.'; lockLobby(false); p.destroy(); } }, 12000);
+    p.on('open', () => {
+      peer = p;
+      const c = p.connect(PREFIX + code.toLowerCase(), { reliable: true, metadata: { role: 'tv' } });
+      c.on('open', () => { clearTimeout(timer); lockLobby(false); enterTV(code, c); });
+      c.on('data', onTV);
+      c.on('close', () => { if (tv) { tv.snap = null; $('tvBanner').innerHTML = 'The host left the room.<small>Refresh this page and enter the new room code.</small>'; renderTVPlayers(); } });
+    });
+    p.on('error', e => {
+      clearTimeout(timer); if (tv) return;
+      $('lobbyMsg').textContent = e.type === 'peer-unavailable' ? 'No room with that code. Check it and try again.' : 'Connection failed (' + e.type + '). Please try again.';
+      lockLobby(false); p.destroy(); peer = null;
+    });
+  };
+
+  function enterTV(code, c) {
+    tv = { code, conn: c, snap: null, rid: null, levels: null, t0: 0, prev: [{}, {}], shown: [-1, -1], hold: [0, 0] };
+    document.body.classList.add('tv');
+    $('tv').hidden = false;
+    $('tvUrl').textContent = location.host + location.pathname.replace(/index\.html$/, '');
+    $('tvCode').textContent = code;
+    [0, 1].forEach(i => {
+      $('tvp' + i).innerHTML =
+        `<div class="tv-head"><span class="tv-name" style="color:${COLS[i]}"></span><span class="tv-time">0.00</span></div>
+         <div class="track"><i style="background:${COLS[i]}"></i></div>
+         <div class="tv-sub"><span class="tv-lv"></span><span class="miss"></span></div>
+         <div class="tv-stage"><div class="board"></div><div class="tv-cover"></div><div class="tv-flash">+3s</div></div>`;
+    });
+    try { navigator.wakeLock?.request('screen').catch(() => {}); } catch {}
+    renderTVPlayers();
+    const loop = () => { tvTick(); requestAnimationFrame(loop); };
+    loop();
+  }
+
+  const q = (i, sel) => $('tvp' + i).querySelector(sel);
+
+  function onTV(m) {
+    if (!tv || !m || m.t !== 'tv' || !Array.isArray(m.players)) return;
+    const r = m.round;
+    if (r && r.id && r.id !== tv.rid && Number.isFinite(+r.seed)) {
+      tv.rid = r.id; tv.levels = buildLevels(+r.seed); tv.t0 = performance.now() + 2400;
+      tv.prev = [{ level: 0, wrong: 0 }, { level: 0, wrong: 0 }]; tv.shown = [-1, -1]; tv.hold = [0, 0];
+    }
+    tv.snap = m;
+    [0, 1].forEach(i => {
+      const p = m.players[i]; if (!p || p.rid !== tv.rid) return;
+      const prev = tv.prev[i];
+      if ((+p.wrong || 0) > (prev.wrong || 0)) {
+        const f = q(i, '.tv-flash'); f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
+        const b = q(i, '.board'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+      }
+      // 答對：先在電視上把剛才那一格框起來，讓觀眾看到答案，再換下一關
+      if ((+p.level || 0) > (prev.level || 0) && tv.shown[i] >= 0) {
+        const tile = q(i, `.tile[data-k="${tv.levels[tv.shown[i]].odd}"]`);
+        if (tile) { tile.classList.add('hit'); tv.hold[i] = performance.now() + 450; }
+      }
+      tv.prev[i] = { level: +p.level || 0, wrong: +p.wrong || 0 };
+    });
+    renderTVPlayers();
+  }
+
+  function renderTVBoard(i, idx) {
+    const lv = tv.levels[idx]; const b = q(i, '.board');
+    b.style.setProperty('--n', lv.n); b.style.gap = lv.n >= 7 ? '4px' : '6px';
+    let html = '';
+    for (let k = 0; k < lv.n * lv.n; k++) html += `<div class="tile" data-k="${k}" style="background:${k === lv.odd ? lv.diff : lv.base}"></div>`;
+    b.innerHTML = html; tv.shown[i] = idx;
+  }
+
+  function renderTVPlayers() {
+    const s = tv.snap; const ps = s ? s.players : [];
+    [0, 1].forEach(i => {
+      const p = ps[i]; const inR = p && tv.rid && p.rid === tv.rid;
+      q(i, '.tv-name').textContent = p ? String(p.nick || (i ? 'Player 2' : 'Player 1')).slice(0, 12) : (i ? 'Player 2' : 'Player 1');
+      q(i, '.track i').style.width = inR ? ((+p.level || 0) / LEVELS * 100) + '%' : '0%';
+      q(i, '.tv-lv').textContent = inR ? (p.done ? `All ${LEVELS} levels` : `Level ${Math.min((+p.level || 0) + 1, LEVELS)} / ${LEVELS} · ${GRID[Math.min(+p.level || 0, LEVELS - 1)]}×${GRID[Math.min(+p.level || 0, LEVELS - 1)]} · ΔL ${DELTA[Math.min(+p.level || 0, LEVELS - 1)]}%`) : '';
+      q(i, '.miss').textContent = inR && p.wrong ? `${p.wrong} ${p.wrong === 1 ? 'miss' : 'misses'}` : '';
+      const cover = q(i, '.tv-cover');
+      if (!p) { cover.hidden = false; cover.innerHTML = 'Waiting…<small>for a player to join</small>'; if (!inR) q(i, '.board').innerHTML = ''; return; }
+      if (p.gone) { cover.hidden = false; cover.innerHTML = 'Left the room'; return; }
+      if (!inR) { cover.hidden = false; cover.innerHTML = p.ready ? `<span style="color:var(--ok)">Ready</span>` : 'Not ready'; q(i, '.board').innerHTML = ''; return; }
+      if (p.done) { cover.hidden = false; cover.innerHTML = `${fmt(p.time)}<small>Finished</small>`; return; }
+      cover.hidden = true;
+    });
+    // 橫幅：等待、比賽中、勝負
+    const both = ps.length === 2 && ps.every(p => p && tv.rid && p.rid === tv.rid);
+    const done = both ? ps.filter(p => p.done).sort((a, b) => a.time - b.time) : [];
+    if (!s) return;
+    if (both && done.length === 2) {
+      $('tvBanner').innerHTML = `${esc(done[0].nick)} wins!<small>Margin ${(done[1].time - done[0].time).toFixed(2)} s · each miss adds ${PENALTY} s</small>`;
+    } else if (both && done.length === 1) {
+      $('tvBanner').innerHTML = `${esc(done[0].nick)} finished first<small>Waiting for the other player…</small>`;
+    } else if (both) {
+      $('tvBanner').innerHTML = 'Find the tile with a different shade<small>Each miss adds 3 seconds</small>';
+    } else if (ps.filter(Boolean).length < 2) {
+      $('tvBanner').innerHTML = 'Waiting for players…<small>Open the link on your phone and join with the room code</small>';
+    } else {
+      $('tvBanner').innerHTML = 'Get ready!<small>The match starts when both players tap “I’m ready”</small>';
+    }
+  }
+
+  function tvTick() {
+    if (!tv) return;
+    const now = performance.now(); const s = tv.snap;
+    const counting = tv.rid && now < tv.t0;
+    $('tvCount').hidden = !counting;
+    if (counting) $('tvCount').textContent = Math.max(1, Math.ceil((tv.t0 - now) / 800));
+    if (!s || !tv.levels) return;
+    [0, 1].forEach(i => {
+      const p = s.players[i]; if (!p || p.rid !== tv.rid) return;
+      const t = p.done ? p.time : Math.max(0, (now - tv.t0) / 1000) + (+p.wrong || 0) * PENALTY;
+      q(i, '.tv-time').textContent = (t ?? 0).toFixed(2);
+      const want = Math.min(+p.level || 0, LEVELS - 1);
+      if (!p.done && want !== tv.shown[i] && now >= tv.hold[i]) renderTVBoard(i, want);
+    });
+  }
 
   $('soloBtn').onclick = () => { solo = true; startRound({ id: 'solo' + Date.now(), seed: Math.floor(Math.random()*1e9) }); };
 
