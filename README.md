@@ -4,9 +4,9 @@ A two-player, head-to-head color perception race for team events.
 
 **Play:** https://tengfanfan1031.github.io/color-duel/
 
-- 25 levels, easy to hard: the grid grows from 3×3 to 10×10, and the lightness gap shrinks from 14% to 1%.
+- 20 levels, easy to hard: the grid grows from 3×3 to 8×8. Levels 1–17 ease you in (lightness gap 20% down to about 5%); the last 3 levels are the real challenge (3%, 2.4%, 1.8%).
 - Find the one tile with a different shade. Each wrong tap adds 3 seconds.
-- Both players get the exact same puzzles. Fastest total time across all 25 levels wins.
+- Both players get the exact same puzzles. Fastest total time across all 20 levels wins.
 
 ## How to play
 

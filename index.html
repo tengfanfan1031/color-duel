@@ -149,8 +149,8 @@ body.tv .wrap{display:none}
 
   <!-- 大廳 -->
   <section id="lobby" class="card">
-    <h2>Two players, 25 levels, one winner</h2>
-    <p class="hint">Each level has one tile that is a slightly different shade. Tap it to advance. Every wrong tap adds 3 seconds. The grid grows and the difference shrinks: by level 25 the lightness gap is just 1%.</p>
+    <h2>Two players, 20 levels, one winner</h2>
+    <p class="hint">Each level has one tile that is a slightly different shade. Tap it to advance. Every wrong tap adds 3 seconds. The grid grows and the difference shrinks. The last 3 levels are the real test.</p>
     <div>
       <label for="nick">Your name</label>
       <input type="text" id="nick" maxlength="12" placeholder="e.g. Alex" autocomplete="off">
@@ -169,7 +169,7 @@ body.tv .wrap{display:none}
     </div>
     <p class="hint" id="lobbyMsg">One player taps “Create room” and shares the code. The other enters it and taps “Join”. To show the match on a big screen, open this page on the TV computer, enter the same code and tap “Watch on TV”.</p>
     <div class="legend" aria-label="Difficulty">
-      <div>Lv 1–5<br>3–4 grid</div><div>Lv 6–11<br>5–6 grid</div><div>Lv 12–17<br>7–8 grid</div><div>Lv 18–21<br>9×9</div><div>Lv 22–25<br>10×10</div>
+      <div>Lv 1–4<br>3–4 grid</div><div>Lv 5–9<br>4–5 grid</div><div>Lv 10–14<br>5–6 grid</div><div>Lv 15–17<br>6–7 grid</div><div>Lv 18–20<br>Hard</div>
     </div>
   </section>
 
@@ -192,7 +192,7 @@ body.tv .wrap{display:none}
   <section id="play" hidden>
     <div class="mini" id="race"></div>
     <div class="hud" style="margin-top:14px">
-      <div class="lv" id="lvTxt">1<span> / 25</span></div>
+      <div class="lv" id="lvTxt">1<span> / 20</span></div>
       <div class="timer" id="timer">0.00</div>
       <div class="meta"><span id="deltaTxt"></span><span id="wrongTxt">0 misses</span></div>
     </div>
@@ -226,10 +226,11 @@ body.tv .wrap{display:none}
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 (() => {
-  const LEVELS = 25, PENALTY = 3, PREFIX = 'colorduel-tw-';
+  const LEVELS = 20, PENALTY = 3, PREFIX = 'colorduel-tw-';
   // 由易到難：格數與亮度差（OKLCH 的 L，單位 %）
-  const GRID  = [3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,9,10,10,10,10];
-  const DELTA = [14,11,9,7.5,6.4,5.5,4.8,4.2,3.7,3.3,2.9,2.6,2.35,2.15,1.95,1.8,1.65,1.55,1.45,1.35,1.25,1.18,1.1,1.05,1];
+  const GRID  = [3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,8,8];
+  // 第 1–17 關循序漸進，最後 3 關才明顯變難
+  const DELTA = [20,18,16,14.5,13,12,11,10,9.2,8.5,7.8,7.2,6.6,6.1,5.6,5.2,4.8,3,2.4,1.8];
 
   const $ = id => document.getElementById(id);
   const screens = ['lobby','room','countdown','play','result'];
