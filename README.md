@@ -1,20 +1,22 @@
-# 色感對決 Color Duel
+# Color Duel
 
-雙人連線的色覺辨識競速小遊戲，適合團隊活動。
+A two-player, head-to-head color perception race for team events.
 
-- 20 關，由淺到深：格子從 2×2 加到 8×8，亮度差從約 22% 縮到約 2%。
-- 每關找出顏色不同的那一格，點錯加 3 秒。
-- 雙方題目完全相同，先破完 20 關、秒數最少的人獲勝。
+**Play:** https://tengfanfan1031.github.io/color-duel/
 
-## 怎麼玩
+- 25 levels, easy to hard: the grid grows from 3×3 to 10×10, and the lightness gap shrinks from 14% to 1%.
+- Find the one tile with a different shade. Each wrong tap adds 3 seconds.
+- Both players get the exact same puzzles. Fastest total time across all 25 levels wins.
 
-1. 打開遊戲網址，輸入暱稱。
-2. 一人按「建立房間」，把畫面上的 4 碼代碼告訴對手。
-3. 對手輸入代碼按「加入」。
-4. 兩人都按「我準備好了」，倒數後開始。
+## How to play
 
-也可以按「單人練習」自己玩。
+1. Open the link and enter your name.
+2. One player taps **Create room** and shares the 4-character code.
+3. The other enters the code and taps **Join**.
+4. Both tap **I'm ready** and the countdown begins.
 
-## 技術說明
+You can also tap **Practice solo** to play alone.
 
-單一 `index.html`，不需要伺服器或帳號。雙人連線使用 [PeerJS](https://peerjs.com/)（WebRTC），兩台瀏覽器直接互連。
+## Tech
+
+A single `index.html` with no server or accounts. Multiplayer uses [PeerJS](https://peerjs.com/) (WebRTC) to connect the two browsers directly.
