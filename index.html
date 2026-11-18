@@ -7,38 +7,40 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
 <style>
-/* 版面概念：驗光室的中性灰背景（避免干擾色彩判斷），中央一塊色盤，上方雙人進度條像賽道 */
+/* 版面概念：驗光室的中性灰背景（避免干擾色彩判斷）。手機是答題卡，電視是房主兼即時排行榜 */
 :root {
   --bg: #e9e9ea;          /* 中性灰：色覺測試的標準環境 */
   --panel: #f6f6f7;
   --ink: #1d1f22;
   --muted: #6b6f76;
   --line: #cfd0d3;
-  --p1: #2f5bd3;          /* 玩家一 */
-  --p2: #d2482f;          /* 玩家二 */
+  --accent: #2f5bd3;
   --ok: #1f8a4c;
   --bad: #c0352b;
+  --gold: #b8860b;
+  --silver: #7c8590;
+  --bronze: #a0522d;
   --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #2a2b2d; --panel: #343538; --ink: #ececee; --muted: #a2a5ab; --line: #47494d;
-  --p1: #7a9bff; --p2: #ff8a70; --ok: #5fcf8d; --bad: #ff6f63; color-scheme: dark } }
+  --accent: #7a9bff; --ok: #5fcf8d; --bad: #ff6f63; --gold: #e8b931; --silver: #b9c1cb; --bronze: #d98a5a; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #2a2b2d; --panel: #343538; --ink: #ececee; --muted: #a2a5ab; --line: #47494d;
-  --p1: #7a9bff; --p2: #ff8a70; --ok: #5fcf8d; --bad: #ff6f63; color-scheme: dark }
+  --accent: #7a9bff; --ok: #5fcf8d; --bad: #ff6f63; --gold: #e8b931; --silver: #b9c1cb; --bronze: #d98a5a; color-scheme: dark }
 
 [hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
-  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px;
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 20px 32px;
 }
 .wrap { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
 header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-h1 { font-family: var(--font-body); font-weight: 900; font-size: 28px; margin: 0; letter-spacing: .02em; }
+h1 { font-weight: 900; font-size: 28px; margin: 0; letter-spacing: .02em; }
 h1 small { font-family: var(--font-display); font-weight: 500; font-size: 13px; color: var(--muted); letter-spacing: .12em; margin-left: 6px; }
 .conn { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
@@ -61,29 +63,22 @@ button {
 }
 button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 button:disabled { opacity: .45; cursor: not-allowed; }
-button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px solid var(--p1); outline-offset: 2px; }
+button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.divider { border: 0; border-top: 1px solid var(--line); margin: 2px 0; width: 100%; }
 
 .codebig { font-family: var(--font-display); font-weight: 700; font-size: 34px; letter-spacing: .3em; }
-.players { display: flex; flex-direction: column; gap: 10px; }
-.pl { display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 10px; }
-.pl .sw { width: 14px; height: 14px; border-radius: 4px; }
-.pl .nm { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pl .nm em { font-style: normal; font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.big-msg { font-size: 20px; font-weight: 700; margin: 0; }
 .pill { font-size: 12px; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
-.pill.ready { border-color: var(--ok); color: var(--ok); }
-.pill.done { border-color: var(--ink); color: var(--ink); }
-.track { grid-column: 2 / 4; height: 8px; background: var(--bg); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
-.track i { display: block; height: 100%; width: 0; transition: width .25s ease; }
-.spect { font-size: 12px; color: var(--muted); }
 
-/* 遊戲畫面 */
+/* 手機答題畫面 */
 .hud { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: end; }
 .lv { font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
 .lv span { font-size: 16px; color: var(--muted); }
 .timer { font-family: var(--font-display); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; text-align: right; }
-.meta { grid-column: 1 / 3; display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta { grid-column: 1 / 3; display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta b { color: var(--ink); }
 .board {
-  --n: 2; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 6px;
+  --n: 3; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 6px;
   width: 100%; max-width: 100%; aspect-ratio: 1; background: var(--panel); padding: 8px; box-sizing: border-box;
   border-radius: 14px; border: 1px solid var(--line); touch-action: manipulation; user-select: none;
 }
@@ -95,48 +90,70 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
 .flash.show { animation: pop .6s; }
 @keyframes pop { 0% { opacity: 1; transform: scale(.8) } 100% { opacity: 0; transform: scale(1.2) } }
 .count { font-family: var(--font-display); font-weight: 700; font-size: 120px; text-align: center; padding-block: 60px; }
-.mini { display: flex; flex-direction: column; gap: 8px; }
 
 .result h2 { font-size: 24px; }
-.rank { display: grid; grid-template-columns: 32px 1fr auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
-.rank:last-child { border-bottom: 0; }
-.rank b { font-family: var(--font-display); font-size: 22px; }
-.rank .t { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat div { background: var(--bg); border-radius: 10px; padding: 12px; }
+.stat b { display: block; font-family: var(--font-display); font-size: 30px; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--muted); letter-spacing: .06em; }
 .legend { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; font-size: 11px; color: var(--muted); text-align: center; }
 .legend div { padding: 6px 0; border-radius: 6px; background: var(--bg); font-variant-numeric: tabular-nums; }
-@media (prefers-reduced-motion: reduce) { .board.shake, .flash.show { animation: none; } .track i { transition: none; } }
-</style>
-<style>
-body{margin:0}
-/* ---------- 電視觀戰模式：大字、高對比、雙盤面並排 ---------- */
-body.tv .wrap{display:none}
-#tv{max-width:1760px;margin:0 auto;display:flex;flex-direction:column;gap:2.2vh}
-.tv-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px 24px}
-.tv-title{font-family:var(--font-display);font-weight:700;font-size:clamp(26px,3.2vw,60px);line-height:1;margin:0}
-.tv-join{font-size:clamp(14px,1.5vw,28px);color:var(--muted);display:flex;align-items:baseline;gap:.5em;flex-wrap:wrap}
-.tv-join b{font-family:var(--font-display);color:var(--ink);letter-spacing:.18em;font-size:1.6em}
-.tv-join .url{color:var(--ink);font-weight:700}
-.tv-banner{min-height:1.2em;text-align:center;font-family:var(--font-display);font-weight:700;font-size:clamp(20px,2.8vw,54px);line-height:1.2}
-.tv-banner small{display:block;font-family:var(--font-body);font-weight:500;font-size:.45em;color:var(--muted)}
-.tv-grid{display:grid;grid-template-columns:1fr 1fr;gap:4vw}
-@media (max-width:760px){.tv-grid{grid-template-columns:1fr}}
-.tv-p{display:flex;flex-direction:column;gap:1.2vh;min-width:0}
-.tv-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
-.tv-name{font-weight:900;font-size:clamp(22px,2.8vw,52px);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tv-time{font-family:var(--font-display);font-weight:700;font-size:clamp(22px,2.8vw,52px);font-variant-numeric:tabular-nums}
-.tv-sub{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:clamp(13px,1.3vw,24px);font-variant-numeric:tabular-nums}
-.tv-sub .miss{color:var(--bad);font-weight:700}
-.tv-p .track{height:clamp(8px,1vh,16px)}
-.tv-stage{position:relative;width:min(100%,60vh);margin:0 auto}
-.tv-stage .board{cursor:default}
-.tv-stage .tile{cursor:default}
-.tv-stage .tile.hit{box-shadow:0 0 0 4px var(--ok) inset, 0 0 0 3px var(--ok)}
-.tv-cover{position:absolute;inset:0;display:grid;place-items:center;text-align:center;border-radius:14px;background:color-mix(in oklab,var(--panel) 88%,transparent);font-family:var(--font-display);font-weight:700;font-size:clamp(20px,3vw,56px)}
-.tv-cover small{display:block;font-family:var(--font-body);font-size:.45em;color:var(--muted);font-weight:500}
-.tv-flash{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-family:var(--font-display);font-weight:700;font-size:clamp(40px,7vw,130px);color:var(--bad);opacity:0}
-.tv-flash.show{animation:pop .7s}
-.tv-count{position:fixed;inset:0;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:clamp(120px,24vw,420px);background:color-mix(in oklab,var(--bg) 70%,transparent);z-index:5}
-@media (prefers-reduced-motion: reduce){.tv-flash.show{animation:none}}
+
+/* ---------- 電視（房主）畫面 ---------- */
+body.tv .wrap { display: none; }
+#tv { max-width: 1800px; margin: 0 auto; display: flex; flex-direction: column; gap: 2vh; }
+.tv-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px 28px; }
+.tv-title { font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 3.2vw, 60px); line-height: 1; margin: 0; }
+.tv-join { font-size: clamp(14px, 1.4vw, 26px); color: var(--muted); display: flex; align-items: baseline; gap: .5em; flex-wrap: wrap; }
+.tv-join b { font-family: var(--font-display); color: var(--ink); letter-spacing: .18em; font-size: 1.6em; }
+.tv-join .url { color: var(--ink); font-weight: 700; }
+.tv-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.tv-status { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 2.4vw, 46px); }
+.tv-status small { font-family: var(--font-body); font-weight: 500; color: var(--muted); font-size: .5em; margin-left: .6em; }
+.tv-clock { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 3.4vw, 64px); font-variant-numeric: tabular-nums; }
+.tv-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.tv-btns button { font-size: clamp(15px, 1.3vw, 24px); padding: .6em 1.2em; }
+
+/* 大廳：QR + 已加入名單 */
+.tv-lobby { display: grid; grid-template-columns: auto 1fr; gap: 3vw; align-items: start; }
+@media (max-width: 760px) { .tv-lobby { grid-template-columns: 1fr; } }
+.tv-qr { background: #fff; padding: 14px; border-radius: 16px; width: min(34vh, 80vw); aspect-ratio: 1; box-sizing: border-box; display: grid; place-items: center; }
+.tv-qr svg, .tv-qr img { width: 100%; height: 100%; }
+.tv-qr-cap { text-align: center; color: var(--muted); font-size: clamp(13px, 1.2vw, 22px); margin-top: 10px; }
+.tv-chips { display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; }
+.chip { font-weight: 700; font-size: clamp(15px, 1.5vw, 28px); padding: .35em .8em; border-radius: 99px; background: var(--panel); border: 1px solid var(--line); animation: chipIn .35s ease; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip.off { opacity: .4; }
+@keyframes chipIn { from { transform: scale(.6); opacity: 0 } to { transform: none; opacity: 1 } }
+.tv-empty { color: var(--muted); font-size: clamp(16px, 1.6vw, 30px); }
+
+/* 排行榜：依名次直向排，人多時自動分欄 */
+.board-list { display: grid; grid-auto-flow: column; gap: .6vh 2.4vw; }
+.rk { display: grid; grid-template-columns: 2.4em minmax(0, 1fr) 5.2em; align-items: center; gap: .7em; padding: .35em .7em; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); font-size: var(--rk-size, clamp(14px, 1.6vh, 26px)); position: relative; overflow: hidden; }
+.rk .bar { position: absolute; inset: 0 auto 0 0; background: color-mix(in oklab, var(--accent) 16%, transparent); transition: width .4s ease; z-index: 0; }
+.rk > *:not(.bar) { position: relative; z-index: 1; }
+.rk .no { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.rk .nm { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk .nm small { font-weight: 500; color: var(--bad); margin-left: .5em; font-size: .8em; }
+.rk .st { font-family: var(--font-display); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.rk.done .st { color: var(--ok); }
+.rk.off { opacity: .45; }
+.rk.p1 { border-color: var(--gold); box-shadow: inset 4px 0 0 var(--gold); }
+.rk.p2 { border-color: var(--silver); box-shadow: inset 4px 0 0 var(--silver); }
+.rk.p3 { border-color: var(--bronze); box-shadow: inset 4px 0 0 var(--bronze); }
+.rk.p1 .no { color: var(--gold); } .rk.p2 .no { color: var(--silver); } .rk.p3 .no { color: var(--bronze); }
+
+/* 頒獎台 */
+.podium { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 2vw; align-items: end; }
+.pod { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 1.2vh 1vw; text-align: center; min-width: 0; }
+.pod .pl { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 4vh, 52px); line-height: 1.1; }
+.pod .who { font-weight: 900; font-size: clamp(18px, 4vh, 48px); line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pod .tm { font-family: var(--font-display); font-weight: 700; color: var(--muted); font-size: clamp(14px, 2.4vh, 30px); font-variant-numeric: tabular-nums; }
+.pod.g { border-color: var(--gold); padding-block: 2.6vh; } .pod.g .pl { color: var(--gold); }
+.pod.s { border-color: var(--silver); } .pod.s .pl { color: var(--silver); }
+.pod.b { border-color: var(--bronze); } .pod.b .pl { color: var(--bronze); }
+.tv-count { position: fixed; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: clamp(120px, 24vw, 420px); background: color-mix(in oklab, var(--bg) 75%, transparent); z-index: 5; }
+
+@media (prefers-reduced-motion: reduce) { .board.shake, .flash.show, .chip { animation: none; } .rk .bar { transition: none; } }
 </style>
 </head>
 <body>
@@ -149,40 +166,39 @@ body.tv .wrap{display:none}
 
   <!-- 大廳 -->
   <section id="lobby" class="card">
-    <h2>Two players, 20 levels, one winner</h2>
-    <p class="hint">Each level has one tile that is a slightly different shade. Tap it to advance. Every wrong tap adds 3 seconds. The grid grows and the difference shrinks. The last 3 levels are the real test.</p>
+    <h2>Everyone plays at once. Fastest eye wins.</h2>
+    <p class="hint">Each level has one tile with a slightly different shade. Tap it to advance. Every wrong tap adds 3 seconds. 20 levels, easy to hard; the last 3 are the real test.</p>
     <div>
       <label for="nick">Your name</label>
-      <input type="text" id="nick" maxlength="12" placeholder="e.g. Alex" autocomplete="off">
-    </div>
-    <div class="row">
-      <button id="hostBtn">Create room</button>
-      <button id="soloBtn" class="ghost">Practice solo</button>
+      <input type="text" id="nick" maxlength="14" placeholder="e.g. Alex" autocomplete="off">
     </div>
     <div>
-      <label for="code">Or enter a room code</label>
-      <div class="row">
-        <input type="text" id="code" maxlength="6" autocomplete="off" placeholder="e.g. K7QH">
-        <button id="joinBtn" class="ghost" style="flex:0 0 auto">Join</button>
-        <button id="tvBtn" class="ghost" style="flex:0 0 auto">Watch on TV</button>
-      </div>
+      <label for="code">Room code (shown on the TV)</label>
+      <input type="text" id="code" maxlength="6" autocomplete="off" placeholder="e.g. K7QH">
     </div>
-    <p class="hint" id="lobbyMsg">One player taps “Create room” and shares the code. The other enters it and taps “Join”. To show the match on a big screen, open this page on the TV computer, enter the same code and tap “Watch on TV”.</p>
+    <div class="row">
+      <button id="joinBtn">Join the game</button>
+      <button id="soloBtn" class="ghost">Practice solo</button>
+    </div>
+    <p class="hint" id="lobbyMsg">Scan the QR code on the TV, or type the room code above.</p>
+    <hr class="divider">
+    <div class="row" style="align-items:center">
+      <p class="hint" style="flex:2 1 220px">Running the event? Open this page on the computer connected to the TV and host the room there.</p>
+      <button id="hostBtn" class="ghost">Host on TV</button>
+    </div>
     <div class="legend" aria-label="Difficulty">
       <div>Lv 1–4<br>3–4 grid</div><div>Lv 5–9<br>4–5 grid</div><div>Lv 10–14<br>5–6 grid</div><div>Lv 15–17<br>6–7 grid</div><div>Lv 18–20<br>Hard</div>
     </div>
   </section>
 
-  <!-- 房間 -->
-  <section id="room" class="card" hidden>
+  <!-- 已加入，等待開局 -->
+  <section id="wait" class="card" hidden>
     <div class="row" style="align-items:center">
-      <div><label>Room code</label><div class="codebig" id="roomCode"></div></div>
+      <div><label>Room</label><div class="codebig" id="waitCode"></div></div>
       <button id="leaveBtn" class="ghost" style="flex:0 0 auto">Leave</button>
     </div>
-    <div class="players" id="players"></div>
-    <p class="hint" id="roomMsg">Waiting for an opponent…</p>
-    <p class="hint" id="tvNote" hidden></p>
-    <button id="readyBtn">I’m ready</button>
+    <p class="big-msg" id="waitTitle">You’re in!</p>
+    <p class="hint" id="waitMsg">Look at the TV. The game starts when the host taps Start.</p>
   </section>
 
   <!-- 倒數 -->
@@ -190,11 +206,10 @@ body.tv .wrap{display:none}
 
   <!-- 遊戲 -->
   <section id="play" hidden>
-    <div class="mini" id="race"></div>
-    <div class="hud" style="margin-top:14px">
+    <div class="hud">
       <div class="lv" id="lvTxt">1<span> / 20</span></div>
       <div class="timer" id="timer">0.00</div>
-      <div class="meta"><span id="deltaTxt"></span><span id="wrongTxt">0 misses</span></div>
+      <div class="meta"><span id="deltaTxt"></span><span id="rankTxt"></span><span id="wrongTxt">0 misses</span></div>
     </div>
     <div class="board" id="board" style="margin-top:10px"></div>
   </section>
@@ -202,59 +217,66 @@ body.tv .wrap{display:none}
   <!-- 結果 -->
   <section id="result" class="card result" hidden>
     <h2 id="resTitle">Finished!</h2>
-    <div id="resList"></div>
+    <div class="stat">
+      <div><span>YOUR TIME</span><b id="resTime">—</b></div>
+      <div><span>RANK</span><b id="resRank">—</b></div>
+    </div>
     <p class="hint" id="resMsg"></p>
-    <div class="row"><button id="againBtn">Play again</button></div>
+    <div class="row"><button id="againBtn" hidden>Practice again</button></div>
   </section>
 </div>
 
-<!-- 電視觀戰 -->
+<!-- 電視（房主）-->
 <section id="tv" hidden>
   <div class="tv-top">
     <h1 class="tv-title">Color Duel</h1>
-    <div class="tv-join">Play at <span class="url" id="tvUrl"></span> · Room <b id="tvCode"></b></div>
+    <div class="tv-join">Join at <span class="url" id="tvUrl"></span> · Room <b id="tvCode"></b></div>
   </div>
-  <div class="tv-banner" id="tvBanner">Waiting for players…</div>
-  <div class="tv-grid">
-    <div class="tv-p" id="tvp0"></div>
-    <div class="tv-p" id="tvp1"></div>
+  <div class="tv-bar">
+    <div class="tv-status" id="tvStatus">Waiting for players<small></small></div>
+    <div class="tv-clock" id="tvClock" hidden>0.00</div>
+    <div class="tv-btns">
+      <button id="startBtn" disabled>Start</button>
+      <button id="endBtn" class="ghost" hidden>End round</button>
+      <button id="newBtn" hidden>New round</button>
+    </div>
   </div>
+
+  <div class="tv-lobby" id="tvLobby">
+    <div><div class="tv-qr" id="tvQr"></div><div class="tv-qr-cap">Scan to join</div></div>
+    <div class="tv-chips" id="tvChips"><span class="tv-empty">No one has joined yet.</span></div>
+  </div>
+  <div class="podium" id="tvPodium" hidden></div>
+  <div class="board-list" id="tvBoard" hidden></div>
 </section>
 <div class="tv-count" id="tvCount" hidden></div>
 <div class="flash" id="flash">+3s</div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
 (() => {
-  const LEVELS = 20, PENALTY = 3, PREFIX = 'colorduel-tw-';
+  const LEVELS = 20, PENALTY = 3, PREFIX = 'colorduel-tw-', MAX_PLAYERS = 80;
   // 由易到難：格數與亮度差（OKLCH 的 L，單位 %）
   const GRID  = [3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,8,8];
   // 第 1–17 關循序漸進，最後 3 關才明顯變難
   const DELTA = [20,18,16,14.5,13,12,11,10,9.2,8.5,7.8,7.2,6.6,6.1,5.6,5.2,4.8,3,2.4,1.8];
+  const COUNT_MS = 2400; // 倒數 3-2-1，每格 800ms
 
   const $ = id => document.getElementById(id);
-  const screens = ['lobby','room','countdown','play','result'];
+  const screens = ['lobby','wait','countdown','play','result'];
   let screen = 'lobby';
   const show = s => { screen = s; screens.forEach(k => $(k).hidden = k !== s); };
-
-  let peer = null, conn = null, isHost = false, solo = false;
-  // players[0] 永遠是房主、players[1] 是加入者
-  let players = [];
-  let myIdx = 0;
-  let game = null, curRid = null;
-  // 房主端：連進來的電視觀戰連線，以及目前回合（電視靠 seed 重建盤面）
-  let tvs = [], curRound = null;
 
   // ---------- 工具 ----------
   function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   const randCode = () => Array.from({length:4}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
   const fmt = s => s == null ? '—' : s.toFixed(2) + ' s';
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const ord = n => n + (['th','st','nd','rd'][(n % 100 > 10 && n % 100 < 14) ? 0 : (n % 10 < 4 ? n % 10 : 0)] || 'th');
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch { return null; } }
-  const blank = nick => ({ nick, ready: false, rid: null, level: 0, done: false, time: null, wrong: 0 });
-  const mine = () => players[myIdx];
-  const other = () => players[1 - myIdx];
   function setConn(on, txt) { $('dot').classList.toggle('on', on); $('connTxt').textContent = txt; }
+  const cleanCode = s => String(s || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
 
   function buildLevels(seed) {
     const r = rng(seed); const out = [];
@@ -268,182 +290,124 @@ body.tv .wrap{display:none}
     return out;
   }
 
-  // ---------- 連線（PeerJS，兩台瀏覽器直接互連）----------
-  function send(msg) { try { if (conn && conn.open) conn.send(msg); } catch {} }
-  function sendMe() { send({ t: 'state', s: mine() }); tvBroadcast(); }
+  // 每支手機一個固定 id，斷線重連時房主認得是同一個人
+  let cid = store('cd-cid');
+  if (!cid) { cid = Math.random().toString(36).slice(2, 12); store('cd-cid', cid); }
 
-  // 房主把雙方狀態整包轉發給所有電視
-  function snapshot() {
-    return { t: 'tv', round: curRound, players: players.map(p => p && { nick: p.nick, ready: p.ready, rid: p.rid, level: p.level, done: p.done, time: p.time, wrong: p.wrong, gone: !!p.gone }) };
-  }
-  function tvBroadcast() {
-    if (!isHost || !tvs.length) return;
-    const s = snapshot();
-    tvs.forEach(c => { try { if (c.open) c.send(s); } catch {} });
-  }
-  function renderTvNote() {
-    $('tvNote').hidden = !tvs.length;
-    $('tvNote').textContent = tvs.length === 1 ? 'TV view connected.' : `${tvs.length} TV views connected.`;
-  }
+  // =====================================================================
+  //  玩家端（手機）
+  // =====================================================================
+  let peer = null, conn = null, roomCode = '', leaving = false, retryTimer = 0;
+  let game = null, solo = false, lastProg = null, myRank = null;
 
-  function needNick() {
-    const nick = $('nick').value.trim();
-    if (!nick) { $('lobbyMsg').textContent = 'Please enter your name first.'; $('nick').focus(); return null; }
-    store('cd-nick', nick); return nick;
-  }
-  if (typeof Peer === 'undefined') { $('lobbyMsg').textContent = 'Could not load the multiplayer module. Check your connection and refresh. Solo practice still works.'; }
+  $('nick').value = store('cd-nick') || '';
+  const qsRoom = cleanCode(new URLSearchParams(location.search).get('room'));
+  if (qsRoom) { $('code').value = qsRoom; $('lobbyMsg').textContent = 'Room code filled in. Enter your name and tap “Join the game”.'; }
+  if (typeof Peer === 'undefined') $('lobbyMsg').textContent = 'Could not load the multiplayer module. Check your connection and refresh. Solo practice still works.';
 
-  function lockLobby(on) { ['hostBtn','joinBtn','soloBtn','tvBtn'].forEach(id => $(id).disabled = on); }
-
-  $('hostBtn').onclick = () => {
-    const nick = needNick(); if (!nick || typeof Peer === 'undefined') return;
-    lockLobby(true); $('lobbyMsg').textContent = 'Creating room…';
-    const tryOpen = (attempt) => {
-      const code = randCode();
-      const p = new Peer(PREFIX + code.toLowerCase());
-      p.on('open', () => {
-        peer = p; isHost = true; solo = false; myIdx = 0; players = [blank(nick)];
-        $('roomCode').textContent = code; setConn(true, 'Room open');
-        show('room'); renderRoom(); lockLobby(false);
-      });
-      p.on('connection', c => {
-        if (c.metadata && c.metadata.role === 'tv') {
-          c.on('open', () => { tvs.push(c); renderTvNote(); try { c.send(snapshot()); } catch {} });
-          c.on('close', () => { tvs = tvs.filter(x => x !== c); renderTvNote(); });
-          c.on('error', () => {});
-          return;
-        }
-        if (conn && conn.open) { c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 500); }); return; }
-        bindConn(c);
-      });
-      p.on('error', e => {
-        if (e.type === 'unavailable-id' && attempt < 3) { p.destroy(); tryOpen(attempt + 1); return; }
-        if (!peer) { lockLobby(false); $('lobbyMsg').textContent = 'Could not create a room (' + e.type + '). Please try again.'; p.destroy(); }
-      });
-      p.on('disconnected', () => { if (peer === p && !p.destroyed) { setConn(false, 'Reconnecting…'); p.reconnect(); } });
-    };
-    tryOpen(0);
-  };
+  function lockLobby(on) { ['joinBtn','soloBtn','hostBtn'].forEach(id => $(id).disabled = on); }
 
   $('joinBtn').onclick = () => {
-    const nick = needNick(); if (!nick || typeof Peer === 'undefined') return;
-    const code = $('code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (code.length < 4) { $('lobbyMsg').textContent = 'Enter the 4-character room code.'; return; }
+    const nick = $('nick').value.trim();
+    if (!nick) { $('lobbyMsg').textContent = 'Please enter your name first.'; $('nick').focus(); return; }
+    const code = cleanCode($('code').value);
+    if (code.length < 4) { $('lobbyMsg').textContent = 'Enter the 4-character room code shown on the TV.'; $('code').focus(); return; }
+    if (typeof Peer === 'undefined') return;
+    store('cd-nick', nick);
+    roomCode = code; leaving = false; solo = false;
     lockLobby(true); $('lobbyMsg').textContent = 'Connecting…';
     const p = new Peer();
-    let timer = setTimeout(() => { if (!conn || !conn.open) { $('lobbyMsg').textContent = 'Could not reach that room. Check the code, or ask your opponent to create a new room.'; lockLobby(false); p.destroy(); } }, 12000);
-    p.on('open', () => {
-      peer = p; isHost = false; solo = false; myIdx = 1;
-      const c = p.connect(PREFIX + code.toLowerCase(), { reliable: true });
-      c.on('open', () => {
-        clearTimeout(timer);
-        players = [blank('Host'), blank(nick)];
-        $('roomCode').textContent = code; show('room'); lockLobby(false);
-        sendMe(); renderRoom();
-      });
-      bindConn(c);
-    });
+    const timer = setTimeout(() => { if (!conn) { $('lobbyMsg').textContent = 'Could not reach that room. Check the code on the TV and try again.'; lockLobby(false); p.destroy(); peer = null; } }, 12000);
+    p.on('open', () => { peer = p; connectRoom(nick, () => { clearTimeout(timer); lockLobby(false); }); });
     p.on('error', e => {
-      clearTimeout(timer);
-      $('lobbyMsg').textContent = e.type === 'peer-unavailable' ? 'No room with that code. Check it and try again.' : 'Connection failed (' + e.type + '). Please try again.';
-      lockLobby(false); p.destroy(); peer = null;
+      if (e.type === 'peer-unavailable') {
+        if (!conn && screen === 'lobby') { clearTimeout(timer); $('lobbyMsg').textContent = 'No room with that code. Check the TV and try again.'; lockLobby(false); p.destroy(); peer = null; }
+        return; // 重連期間找不到房主：等下一次重試
+      }
+      if (screen === 'lobby') { clearTimeout(timer); $('lobbyMsg').textContent = 'Connection failed (' + e.type + '). Please try again.'; lockLobby(false); }
     });
+    p.on('disconnected', () => { if (!leaving && peer === p && !p.destroyed) { try { p.reconnect(); } catch {} } });
   };
 
-  function bindConn(c) {
+  function connectRoom(nick, onFirstOpen) {
+    if (!peer || leaving) return;
+    const c = peer.connect(PREFIX + roomCode.toLowerCase(), { reliable: true, metadata: { cid, nick } });
     c.on('open', () => {
       conn = c; setConn(true, 'Connected');
-      if (isHost) { players[1] = blank('Opponent'); sendMe(); renderRoom(); }
+      if (onFirstOpen) { onFirstOpen(); onFirstOpen = null; $('waitCode').textContent = roomCode; if (screen === 'lobby') show('wait'); }
+      if (lastProg) c.send(lastProg); // 重連後補送最新進度
     });
-    c.on('data', onData);
+    c.on('data', onHostMsg);
     c.on('close', () => {
       if (conn !== c) return;
-      conn = null; setConn(false, 'Opponent left');
-      if (isHost) players = [players[0]]; else if (players[0]) players[0].gone = true;
-      tvBroadcast(); refresh();
+      conn = null;
+      if (leaving) return;
+      setConn(false, 'Reconnecting…');
+      clearTimeout(retryTimer);
+      retryTimer = setTimeout(() => connectRoom(nick), 2500);
     });
+    c.on('error', () => {});
   }
 
-  function onData(m) {
+  function sendHost(msg) { try { if (conn && conn.open) conn.send(msg); } catch {} }
+
+  function onHostMsg(m) {
     if (!m || typeof m !== 'object') return;
-    if (m.t === 'full') { $('lobbyMsg').textContent = 'That room already has two players.'; show('lobby'); return; }
-    if (m.t === 'state' && m.s && typeof m.s === 'object') {
-      const s = m.s; const o = players[1 - myIdx] || {};
-      players[1 - myIdx] = { ...o, nick: String(s.nick || 'Opponent').slice(0, 12), ready: !!s.ready, rid: s.rid || null,
-        level: Math.max(0, Math.min(LEVELS, +s.level || 0)), done: !!s.done, time: typeof s.time === 'number' ? s.time : null, wrong: +s.wrong || 0 };
-      if (isHost) { maybeStart(); tvBroadcast(); }
-      refresh();
+    if (m.t === 'welcome') {
+      $('waitTitle').textContent = `You’re in, ${m.nick}!`;
+      if (m.phase === 'race' && (!game || game.rid !== m.rid)) $('waitMsg').textContent = 'A round is already running. You’ll join the next one.';
     }
-    if (m.t === 'start' && !isHost && m.id && m.id !== curRid && screen === 'room') startRound({ id: m.id, seed: m.seed });
-  }
-
-  function refresh() { if (screen === 'room') renderRoom(); else renderRace(); }
-
-  function maybeStart() {
-    if (screen !== 'room' || players.length < 2 || !players.every(p => p.ready)) return;
-    const round = { id: 'r' + Date.now().toString(36), seed: Math.floor(Math.random() * 1e9) };
-    curRound = round;
-    send({ t: 'start', ...round });
-    startRound(round);
+    if (m.t === 'full') { leaving = true; $('lobbyMsg').textContent = 'This room is full.'; show('lobby'); setConn(false, 'Offline'); }
+    if (m.t === 'count' && screen === 'wait') $('waitMsg').textContent = `${m.n} ${m.n === 1 ? 'player' : 'players'} in the room. Look at the TV — the game starts when the host taps Start.`;
+    if (m.t === 'start' && m.rid && (!game || game.rid !== m.rid)) startRound(m.rid, +m.seed);
+    if (m.t === 'rank') { myRank = m; renderRank(); }
+    if (m.t === 'end' && game && game.rid === m.rid) {
+      if (!game.done) { game.done = true; cancelAnimationFrame(game.raf); show('result'); $('resTitle').textContent = 'Time’s up!'; $('resTime').textContent = `Lv ${game.i + 1}`; }
+      renderRank();
+    }
+    if (m.t === 'lobby') { game = null; myRank = null; lastProg = null; show('wait'); $('waitMsg').textContent = 'Next round coming up. Look at the TV.'; }
   }
 
   $('leaveBtn').onclick = () => {
-    try { conn?.close(); } catch {} tvs.forEach(c => { try { c.close(); } catch {} }); try { peer?.destroy(); } catch {}
-    conn = null; peer = null; players = []; tvs = []; curRound = null; renderTvNote(); setConn(false, 'Offline'); show('lobby');
+    leaving = true; clearTimeout(retryTimer);
+    try { conn?.close(); } catch {} try { peer?.destroy(); } catch {}
+    conn = null; peer = null; game = null; lastProg = null; setConn(false, 'Offline'); show('lobby');
+    $('lobbyMsg').textContent = 'You left the room.';
   };
 
-  // ---------- 房間 ----------
-  function playerRow(p, i, rid) {
-    const col = i === 0 ? 'var(--p1)' : 'var(--p2)';
-    const inRound = rid && p.rid === rid;
-    let pill = p.ready ? '<span class="pill ready">Ready</span>' : '<span class="pill">Not ready</span>';
-    if (inRound) pill = p.done ? `<span class="pill done">${esc(fmt(p.time))}</span>` : `<span class="pill">Level ${Math.min(p.level + 1, LEVELS)}</span>`;
-    if (p.gone) pill = '<span class="pill">Left</span>';
-    const pct = inRound ? (p.level / LEVELS * 100) : 0;
-    return `<div class="pl"><span class="sw" style="background:${col}"></span><span class="nm">${esc(p.nick)}${i === myIdx ? '<em>you</em>' : ''}</span>${pill}<div class="track"><i style="width:${pct}%;background:${col}"></i></div></div>`;
-  }
-
-  function renderRoom() {
-    $('players').innerHTML = players.map((p, i) => p ? playerRow(p, i, null) : '').join('');
-    $('readyBtn').textContent = mine()?.ready ? 'Cancel ready' : 'I’m ready';
-    const ok = players.length === 2 && conn && conn.open;
-    if (!ok) $('roomMsg').textContent = isHost ? 'Waiting for an opponent… Share the room code above.' : 'Lost connection to the host. Leave and join again.';
-    else if (players.every(p => p.ready)) $('roomMsg').textContent = 'Both ready. Starting!';
-    else $('roomMsg').textContent = 'The countdown starts when both players tap “I’m ready”.';
-  }
-
-  $('readyBtn').onclick = () => {
-    if (!mine()) return;
-    mine().ready = !mine().ready; sendMe(); renderRoom();
-    if (isHost) maybeStart();
-  };
-
-  // ---------- 回合 ----------
-  function startRound(round) {
-    curRid = round.id;
-    game = { levels: buildLevels(round.seed), i: 0, wrong: 0, t0: 0, done: false, time: null, raf: 0 };
-    if (!solo) { Object.assign(mine(), { ready: false, rid: round.id, level: 0, done: false, time: null, wrong: 0 }); sendMe(); }
+  // ---------- 答題 ----------
+  function startRound(rid, seed) {
+    game = { rid, levels: buildLevels(seed), i: 0, wrong: 0, t0: 0, done: false, time: null, raf: 0, at: 0 };
+    myRank = null; $('rankTxt').textContent = '';
+    report();
     show('countdown');
     let c = 3; $('countNum').textContent = c;
     const iv = setInterval(() => {
       c--; if (c > 0) { $('countNum').textContent = c; return; }
       clearInterval(iv); beginPlay();
-    }, 800);
+    }, COUNT_MS / 3);
   }
 
   function beginPlay() {
+    if (!game || game.done) return;
     show('play');
     game.t0 = performance.now();
-    renderLevel(); renderRace();
+    renderLevel();
     const tick = () => { if (!game || game.done) return; $('timer').textContent = elapsed().toFixed(2); game.raf = requestAnimationFrame(tick); };
     tick();
   }
   const elapsed = () => (performance.now() - game.t0) / 1000 + game.wrong * PENALTY;
 
+  function report() {
+    if (solo || !game) return;
+    lastProg = { t: 'prog', rid: game.rid, level: game.i, at: Math.round(game.at * 100) / 100, wrong: game.wrong, done: game.done, time: game.time };
+    sendHost(lastProg);
+  }
+
   function renderLevel() {
     const lv = game.levels[game.i];
     $('lvTxt').innerHTML = `${game.i + 1}<span> / ${LEVELS}</span>`;
-    $('deltaTxt').textContent = `${lv.n}×${lv.n} grid · lightness gap ΔL ${lv.d}%`;
+    $('deltaTxt').textContent = `${lv.n}×${lv.n} · ΔL ${lv.d}%`;
     $('wrongTxt').textContent = `${game.wrong} ${game.wrong === 1 ? 'miss' : 'misses'}`;
     const b = $('board'); b.style.setProperty('--n', lv.n);
     b.style.gap = lv.n >= 7 ? '4px' : '6px';
@@ -467,191 +431,236 @@ body.tv .wrap{display:none}
       game.wrong++; $('wrongTxt').textContent = `${game.wrong} ${game.wrong === 1 ? 'miss' : 'misses'}`;
       const b = $('board'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
       const f = $('flash'); f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
-      if (!solo) { mine().wrong = game.wrong; sendMe(); }
+      report();
       return;
     }
-    game.i++;
+    game.i++; game.at = elapsed();
     if (game.i >= LEVELS) return finish();
-    if (!solo) { mine().level = game.i; sendMe(); }
-    renderLevel(); renderRace();
+    report(); renderLevel();
   }
 
   function finish() {
     game.done = true; cancelAnimationFrame(game.raf);
     game.time = Math.round(elapsed() * 100) / 100;
-    if (!solo) { Object.assign(mine(), { level: LEVELS, done: true, time: game.time }); sendMe(); }
-    show('result'); renderRace();
+    report();
+    show('result');
+    $('resTitle').textContent = solo ? 'Practice complete!' : 'You finished!';
+    $('resTime').textContent = fmt(game.time);
+    $('againBtn').hidden = !solo;
+    renderRank();
   }
 
-  function renderRace() {
-    if (solo) {
-      $('race').innerHTML = '';
-      if (screen === 'result') {
-        $('resTitle').textContent = 'Practice complete!';
-        $('resList').innerHTML = `<div class="rank"><b>—</b><span>${esc($('nick').value.trim() || 'You')}</span><span class="t">${fmt(game.time)}</span></div>`;
-        $('resMsg').textContent = `${game.wrong} misses (+${PENALTY} s each).`;
-        $('againBtn').textContent = 'Practice again';
+  function renderRank() {
+    if (solo) { $('resRank').textContent = '—'; $('resMsg').textContent = `${game.wrong} misses (+${PENALTY} s each).`; return; }
+    if (!myRank) { $('resRank').textContent = '…'; $('resMsg').textContent = 'Check the TV for the live ranking.'; return; }
+    $('rankTxt').innerHTML = `Rank <b>${myRank.rank}</b> / ${myRank.n}`;
+    $('resRank').textContent = `${ord(myRank.rank)}`;
+    const left = myRank.n - myRank.finished;
+    $('resMsg').textContent = left > 0 ? `of ${myRank.n} players · ${left} still playing. Check the TV for the full ranking.` : `of ${myRank.n} players. Check the TV for the podium!`;
+  }
+
+  // ---------- 單人練習 ----------
+  $('soloBtn').onclick = () => { solo = true; startRound('solo' + Date.now(), Math.floor(Math.random() * 1e9)); };
+  $('againBtn').onclick = () => $('soloBtn').click();
+
+  // =====================================================================
+  //  房主端（電視）
+  // =====================================================================
+  let host = null;
+  // host = { peer, code, players: Map<cid, P>, phase: 'lobby'|'race'|'end', rid, seed, t0, dirty }
+  // P = { cid, nick, conn, online, inRound, level, at, wrong, done, time, joinedAt }
+
+  $('hostBtn').onclick = () => {
+    if (typeof Peer === 'undefined') return;
+    lockLobby(true); $('lobbyMsg').textContent = 'Opening the room…';
+    const tryOpen = attempt => {
+      const code = randCode();
+      const p = new Peer(PREFIX + code.toLowerCase());
+      p.on('open', () => { lockLobby(false); enterHost(p, code); });
+      p.on('connection', onPlayerConn);
+      p.on('error', e => {
+        if (e.type === 'unavailable-id' && attempt < 4) { p.destroy(); tryOpen(attempt + 1); return; }
+        if (!host) { lockLobby(false); $('lobbyMsg').textContent = 'Could not open a room (' + e.type + '). Please try again.'; p.destroy(); }
+      });
+      p.on('disconnected', () => { if (host && host.peer === p && !p.destroyed) { try { p.reconnect(); } catch {} } });
+    };
+    tryOpen(0);
+  };
+
+  function enterHost(p, code) {
+    host = { peer: p, code, players: new Map(), phase: 'lobby', rid: null, seed: 0, t0: 0, dirty: true };
+    document.body.classList.add('tv'); $('tv').hidden = false;
+    const base = location.origin + location.pathname.replace(/index\.html$/, '');
+    $('tvUrl').textContent = base.replace(/^https?:\/\//, '');
+    $('tvCode').textContent = code;
+    try {
+      const qr = qrcode(0, 'M'); qr.addData(base + '?room=' + code); qr.make();
+      $('tvQr').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 0, scalable: true });
+    } catch { $('tvQr').innerHTML = `<b style="color:#000;font-size:28px">${code}</b>`; }
+    try { navigator.wakeLock?.request('screen').catch(() => {}); } catch {}
+    setInterval(hostTick, 250);
+    setInterval(sendRanks, 1000);
+    renderHost();
+  }
+
+  function onPlayerConn(c) {
+    const md = c.metadata || {};
+    const pcid = String(md.cid || '').slice(0, 20);
+    let nick = String(md.nick || 'Player').replace(/\s+/g, ' ').trim().slice(0, 14) || 'Player';
+    c.on('open', () => {
+      if (!host || !pcid) { c.close(); return; }
+      let P = host.players.get(pcid);
+      if (!P) {
+        if (host.players.size >= MAX_PLAYERS) { try { c.send({ t: 'full' }); } catch {} setTimeout(() => c.close(), 500); return; }
+        // 重名就加編號
+        const taken = new Set([...host.players.values()].map(x => x.nick.toLowerCase()));
+        if (taken.has(nick.toLowerCase())) { let k = 2; while (taken.has((nick + ' ' + k).toLowerCase())) k++; nick = nick + ' ' + k; }
+        P = { cid: pcid, nick, conn: null, online: false, inRound: false, level: 0, at: 0, wrong: 0, done: false, time: null, joinedAt: Date.now() };
+        host.players.set(pcid, P);
       }
+      if (P.conn && P.conn !== c) { try { P.conn.close(); } catch {} }
+      P.conn = c; P.online = true;
+      try { c.send({ t: 'welcome', nick: P.nick, phase: host.phase, rid: host.rid }); } catch {}
+      broadcastCount();
+      host.dirty = true;
+    });
+    c.on('data', m => {
+      const P = host && host.players.get(pcid); if (!P || P.conn !== c || !m || m.t !== 'prog') return;
+      if (host.phase !== 'race' || m.rid !== host.rid || !P.inRound) return;
+      P.level = Math.max(0, Math.min(LEVELS, +m.level || 0));
+      P.at = Math.max(0, +m.at || 0); P.wrong = Math.max(0, +m.wrong || 0);
+      if (m.done && !P.done && typeof m.time === 'number') { P.done = true; P.time = m.time; P.level = LEVELS; }
+      host.dirty = true;
+      checkAllDone();
+    });
+    c.on('close', () => {
+      const P = host && host.players.get(pcid); if (!P || P.conn !== c) return;
+      P.online = false; P.conn = null;
+      // 大廳階段離線的人直接移除；比賽中保留成績
+      if (host.phase === 'lobby') host.players.delete(pcid);
+      broadcastCount(); host.dirty = true;
+      checkAllDone();
+    });
+    c.on('error', () => {});
+  }
+
+  const online = () => [...host.players.values()].filter(P => P.online && P.conn);
+  function sendTo(P, msg) { try { if (P.conn && P.conn.open) P.conn.send(msg); } catch {} }
+  function broadcast(msg) { online().forEach(P => sendTo(P, msg)); }
+  function broadcastCount() { if (host.phase === 'lobby') broadcast({ t: 'count', n: online().length }); }
+
+  // 排名規則：完成者依總時間；未完成者依關卡（高到低），同關卡依到達時間（早到前）
+  function ranking() {
+    const list = [...host.players.values()].filter(P => P.inRound);
+    return list.sort((a, b) => {
+      if (a.done !== b.done) return a.done ? -1 : 1;
+      if (a.done) return a.time - b.time;
+      if (a.level !== b.level) return b.level - a.level;
+      return a.at - b.at;
+    });
+  }
+
+  function sendRanks() {
+    if (!host || host.phase === 'lobby') return;
+    const r = ranking(); const fin = r.filter(P => P.done).length;
+    r.forEach((P, i) => { if (P.online) sendTo(P, { t: 'rank', rank: i + 1, n: r.length, finished: fin }); });
+  }
+
+  $('startBtn').onclick = () => {
+    if (!host || host.phase !== 'lobby') return;
+    const ps = online(); if (!ps.length) return;
+    host.rid = 'r' + Date.now().toString(36); host.seed = Math.floor(Math.random() * 1e9);
+    host.players.forEach(P => Object.assign(P, { inRound: P.online, level: 0, at: 0, wrong: 0, done: false, time: null }));
+    host.phase = 'race'; host.t0 = performance.now() + COUNT_MS; host.endAt = 0;
+    broadcast({ t: 'start', rid: host.rid, seed: host.seed });
+    host.dirty = true; renderHost();
+  };
+
+  $('endBtn').onclick = () => endRound();
+  function endRound() {
+    if (!host || host.phase !== 'race') return;
+    host.phase = 'end'; host.endAt = performance.now();
+    broadcast({ t: 'end', rid: host.rid });
+    sendRanks(); host.dirty = true; renderHost();
+  }
+  function checkAllDone() {
+    if (!host || host.phase !== 'race') return;
+    const r = ranking();
+    if (r.length && r.every(P => P.done || !P.online)) setTimeout(() => { if (ranking().every(P => P.done || !P.online)) endRound(); }, 400);
+  }
+
+  $('newBtn').onclick = () => {
+    if (!host) return;
+    // 離線的人移除，其餘回到大廳
+    [...host.players.values()].forEach(P => { if (!P.online) host.players.delete(P.cid); P.inRound = false; });
+    host.phase = 'lobby'; host.rid = null;
+    broadcast({ t: 'lobby' }); broadcastCount();
+    host.dirty = true; renderHost();
+  };
+
+  function hostTick() {
+    if (!host) return;
+    const now = performance.now();
+    const counting = host.phase === 'race' && now < host.t0;
+    $('tvCount').hidden = !counting;
+    if (counting) $('tvCount').textContent = Math.max(1, Math.ceil((host.t0 - now) / (COUNT_MS / 3)));
+    if (host.phase !== 'lobby') {
+      const t = host.phase === 'end' ? (host.endAt - host.t0) / 1000 : (now - host.t0) / 1000;
+      $('tvClock').textContent = Math.max(0, t).toFixed(1);
+    }
+    if (host.dirty) { host.dirty = false; renderHost(); }
+  }
+
+  function renderHost() {
+    const ph = host.phase; const ps = online();
+    $('tvLobby').hidden = ph !== 'lobby';
+    $('tvBoard').hidden = ph === 'lobby';
+    $('tvPodium').hidden = ph !== 'end';
+    $('tvClock').hidden = ph !== 'race';
+    $('startBtn').hidden = ph !== 'lobby'; $('startBtn').disabled = !ps.length;
+    $('endBtn').hidden = ph !== 'race';
+    $('newBtn').hidden = ph !== 'end';
+
+    if (ph === 'lobby') {
+      $('tvStatus').innerHTML = `${ps.length} ${ps.length === 1 ? 'player' : 'players'} joined<small>Scan the QR code or enter the room code</small>`;
+      const chips = [...host.players.values()].sort((a, b) => a.joinedAt - b.joinedAt);
+      $('tvChips').innerHTML = chips.length ? chips.map(P => `<span class="chip${P.online ? '' : ' off'}">${esc(P.nick)}</span>`).join('') : '<span class="tv-empty">No one has joined yet.</span>';
       return;
     }
-    $('race').innerHTML = players.map((p, i) => p ? playerRow(p, i, curRid) : '').join('');
-    if (screen !== 'result') return;
-    const rows = players.map((p, i) => ({ p, i, inR: p && p.rid === curRid })).filter(r => r.p);
-    const finished = rows.filter(r => r.inR && r.p.done).sort((a, b) => a.p.time - b.p.time);
-    const pending = rows.filter(r => !(r.inR && r.p.done));
-    $('resList').innerHTML = [...finished, ...pending].map((r, idx) => {
-      const place = r.inR && r.p.done ? idx + 1 : '…';
-      const t = r.inR && r.p.done ? fmt(r.p.time) : (r.p.gone ? 'Left' : r.inR ? `On level ${Math.min(r.p.level + 1, LEVELS)}` : 'Not playing');
-      return `<div class="rank"><b style="color:${r.i === 0 ? 'var(--p1)' : 'var(--p2)'}">${place}</b><span>${esc(r.p.nick)}${r.i === myIdx ? ' (you)' : ''} · ${r.p.wrong || 0} misses</span><span class="t">${esc(t)}</span></div>`;
+
+    const r = ranking(); const fin = r.filter(P => P.done).length;
+    $('tvStatus').innerHTML = ph === 'race'
+      ? `Live ranking<small>${fin} of ${r.length} finished</small>`
+      : `Final ranking<small>${fin} of ${r.length} finished</small>`;
+
+    if (ph === 'end') {
+      const [a, b, c] = r;
+      const pod = (P, cls, place) => P ? `<div class="pod ${cls}"><div class="pl">${place}</div><div class="who">${esc(P.nick)}</div><div class="tm">${P.done ? fmt(P.time) : 'Level ' + (P.level + 1)}</div></div>` : '<div></div>';
+      $('tvPodium').innerHTML = pod(b, 's', '2nd') + pod(a, 'g', '1st') + pod(c, 'b', '3rd');
+    }
+
+    // 人多時自動分欄，讓 40 人都放得進一個畫面
+    const list = ph === 'end' ? r.slice(3) : r;
+    const cols = list.length <= 10 ? 1 : list.length <= 30 ? 2 : list.length <= 60 ? 3 : 4;
+    const rows = Math.max(1, Math.ceil(list.length / cols));
+    const avail = window.innerHeight * (ph === 'end' ? 0.52 : 0.72);
+    const size = Math.max(14, Math.min(28, avail / rows / 2.0));
+    const el = $('tvBoard');
+    el.style.gridTemplateRows = `repeat(${rows}, auto)`;
+    el.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    el.style.setProperty('--rk-size', size + 'px');
+    const offset = ph === 'end' ? 3 : 0;
+    el.innerHTML = list.map((P, i) => {
+      const n = i + 1 + offset;
+      const st = P.done ? fmt(P.time) : `Lv ${Math.min(P.level + 1, LEVELS)}`;
+      const pct = (P.done ? LEVELS : P.level) / LEVELS * 100;
+      const cls = ['rk', P.done ? 'done' : '', P.online ? '' : 'off', n <= 3 ? 'p' + n : ''].join(' ');
+      return `<div class="${cls}"><span class="bar" style="width:${pct}%"></span><span class="no">${n}</span><span class="nm">${esc(P.nick)}${P.wrong ? `<small>✕${P.wrong}</small>` : ''}</span><span class="st">${st}</span></div>`;
     }).join('');
-    if (finished.length === 2) {
-      const w = finished[0];
-      $('resTitle').textContent = w.i === myIdx ? 'You win!' : `${w.p.nick} wins`;
-      $('resMsg').textContent = `Margin: ${(finished[1].p.time - finished[0].p.time).toFixed(2)} s. Each miss adds ${PENALTY} s.`;
-    } else if (!conn || !conn.open) {
-      $('resTitle').textContent = 'You finished!'; $('resMsg').textContent = 'Your opponent left.';
-    } else {
-      $('resTitle').textContent = 'You finished!'; $('resMsg').textContent = 'Waiting for your opponent to finish…';
-    }
-    $('againBtn').textContent = 'Back to room';
   }
 
-  $('againBtn').onclick = () => {
-    if (solo) { startRound({ id: 'solo' + Date.now(), seed: Math.floor(Math.random()*1e9) }); return; }
-    show('room'); renderRoom();
-  };
-
-  // ---------- 電視觀戰模式 ----------
-  // 電視連到房主，收到雙方狀態後用同一個 seed 重建兩人當下的盤面
-  let tv = null;
-  const COLS = ['var(--p1)', 'var(--p2)'];
-
-  $('tvBtn').onclick = () => {
-    if (typeof Peer === 'undefined') return;
-    const code = $('code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (code.length < 4) { $('lobbyMsg').textContent = 'Enter the 4-character room code shown on the host’s phone.'; $('code').focus(); return; }
-    lockLobby(true); $('lobbyMsg').textContent = 'Connecting the TV view…';
-    const p = new Peer();
-    const timer = setTimeout(() => { if (!tv) { $('lobbyMsg').textContent = 'Could not reach that room. Check the code and try again.'; lockLobby(false); p.destroy(); } }, 12000);
-    p.on('open', () => {
-      peer = p;
-      const c = p.connect(PREFIX + code.toLowerCase(), { reliable: true, metadata: { role: 'tv' } });
-      c.on('open', () => { clearTimeout(timer); lockLobby(false); enterTV(code, c); });
-      c.on('data', onTV);
-      c.on('close', () => { if (tv) { tv.snap = null; $('tvBanner').innerHTML = 'The host left the room.<small>Refresh this page and enter the new room code.</small>'; renderTVPlayers(); } });
-    });
-    p.on('error', e => {
-      clearTimeout(timer); if (tv) return;
-      $('lobbyMsg').textContent = e.type === 'peer-unavailable' ? 'No room with that code. Check it and try again.' : 'Connection failed (' + e.type + '). Please try again.';
-      lockLobby(false); p.destroy(); peer = null;
-    });
-  };
-
-  function enterTV(code, c) {
-    tv = { code, conn: c, snap: null, rid: null, levels: null, t0: 0, prev: [{}, {}], shown: [-1, -1], hold: [0, 0] };
-    document.body.classList.add('tv');
-    $('tv').hidden = false;
-    $('tvUrl').textContent = location.host + location.pathname.replace(/index\.html$/, '');
-    $('tvCode').textContent = code;
-    [0, 1].forEach(i => {
-      $('tvp' + i).innerHTML =
-        `<div class="tv-head"><span class="tv-name" style="color:${COLS[i]}"></span><span class="tv-time">0.00</span></div>
-         <div class="track"><i style="background:${COLS[i]}"></i></div>
-         <div class="tv-sub"><span class="tv-lv"></span><span class="miss"></span></div>
-         <div class="tv-stage"><div class="board"></div><div class="tv-cover"></div><div class="tv-flash">+3s</div></div>`;
-    });
-    try { navigator.wakeLock?.request('screen').catch(() => {}); } catch {}
-    renderTVPlayers();
-    const loop = () => { tvTick(); requestAnimationFrame(loop); };
-    loop();
-  }
-
-  const q = (i, sel) => $('tvp' + i).querySelector(sel);
-
-  function onTV(m) {
-    if (!tv || !m || m.t !== 'tv' || !Array.isArray(m.players)) return;
-    const r = m.round;
-    if (r && r.id && r.id !== tv.rid && Number.isFinite(+r.seed)) {
-      tv.rid = r.id; tv.levels = buildLevels(+r.seed); tv.t0 = performance.now() + 2400;
-      tv.prev = [{ level: 0, wrong: 0 }, { level: 0, wrong: 0 }]; tv.shown = [-1, -1]; tv.hold = [0, 0];
-    }
-    tv.snap = m;
-    [0, 1].forEach(i => {
-      const p = m.players[i]; if (!p || p.rid !== tv.rid) return;
-      const prev = tv.prev[i];
-      if ((+p.wrong || 0) > (prev.wrong || 0)) {
-        const f = q(i, '.tv-flash'); f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
-        const b = q(i, '.board'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
-      }
-      // 答對：先在電視上把剛才那一格框起來，讓觀眾看到答案，再換下一關
-      if ((+p.level || 0) > (prev.level || 0) && tv.shown[i] >= 0) {
-        const tile = q(i, `.tile[data-k="${tv.levels[tv.shown[i]].odd}"]`);
-        if (tile) { tile.classList.add('hit'); tv.hold[i] = performance.now() + 450; }
-      }
-      tv.prev[i] = { level: +p.level || 0, wrong: +p.wrong || 0 };
-    });
-    renderTVPlayers();
-  }
-
-  function renderTVBoard(i, idx) {
-    const lv = tv.levels[idx]; const b = q(i, '.board');
-    b.style.setProperty('--n', lv.n); b.style.gap = lv.n >= 7 ? '4px' : '6px';
-    let html = '';
-    for (let k = 0; k < lv.n * lv.n; k++) html += `<div class="tile" data-k="${k}" style="background:${k === lv.odd ? lv.diff : lv.base}"></div>`;
-    b.innerHTML = html; tv.shown[i] = idx;
-  }
-
-  function renderTVPlayers() {
-    const s = tv.snap; const ps = s ? s.players : [];
-    [0, 1].forEach(i => {
-      const p = ps[i]; const inR = p && tv.rid && p.rid === tv.rid;
-      q(i, '.tv-name').textContent = p ? String(p.nick || (i ? 'Player 2' : 'Player 1')).slice(0, 12) : (i ? 'Player 2' : 'Player 1');
-      q(i, '.track i').style.width = inR ? ((+p.level || 0) / LEVELS * 100) + '%' : '0%';
-      q(i, '.tv-lv').textContent = inR ? (p.done ? `All ${LEVELS} levels` : `Level ${Math.min((+p.level || 0) + 1, LEVELS)} / ${LEVELS} · ${GRID[Math.min(+p.level || 0, LEVELS - 1)]}×${GRID[Math.min(+p.level || 0, LEVELS - 1)]} · ΔL ${DELTA[Math.min(+p.level || 0, LEVELS - 1)]}%`) : '';
-      q(i, '.miss').textContent = inR && p.wrong ? `${p.wrong} ${p.wrong === 1 ? 'miss' : 'misses'}` : '';
-      const cover = q(i, '.tv-cover');
-      if (!p) { cover.hidden = false; cover.innerHTML = 'Waiting…<small>for a player to join</small>'; if (!inR) q(i, '.board').innerHTML = ''; return; }
-      if (p.gone) { cover.hidden = false; cover.innerHTML = 'Left the room'; return; }
-      if (!inR) { cover.hidden = false; cover.innerHTML = p.ready ? `<span style="color:var(--ok)">Ready</span>` : 'Not ready'; q(i, '.board').innerHTML = ''; return; }
-      if (p.done) { cover.hidden = false; cover.innerHTML = `${fmt(p.time)}<small>Finished</small>`; return; }
-      cover.hidden = true;
-    });
-    // 橫幅：等待、比賽中、勝負
-    const both = ps.length === 2 && ps.every(p => p && tv.rid && p.rid === tv.rid);
-    const done = both ? ps.filter(p => p.done).sort((a, b) => a.time - b.time) : [];
-    if (!s) return;
-    if (both && done.length === 2) {
-      $('tvBanner').innerHTML = `${esc(done[0].nick)} wins!<small>Margin ${(done[1].time - done[0].time).toFixed(2)} s · each miss adds ${PENALTY} s</small>`;
-    } else if (both && done.length === 1) {
-      $('tvBanner').innerHTML = `${esc(done[0].nick)} finished first<small>Waiting for the other player…</small>`;
-    } else if (both) {
-      $('tvBanner').innerHTML = 'Find the tile with a different shade<small>Each miss adds 3 seconds</small>';
-    } else if (ps.filter(Boolean).length < 2) {
-      $('tvBanner').innerHTML = 'Waiting for players…<small>Open the link on your phone and join with the room code</small>';
-    } else {
-      $('tvBanner').innerHTML = 'Get ready!<small>The match starts when both players tap “I’m ready”</small>';
-    }
-  }
-
-  function tvTick() {
-    if (!tv) return;
-    const now = performance.now(); const s = tv.snap;
-    const counting = tv.rid && now < tv.t0;
-    $('tvCount').hidden = !counting;
-    if (counting) $('tvCount').textContent = Math.max(1, Math.ceil((tv.t0 - now) / 800));
-    if (!s || !tv.levels) return;
-    [0, 1].forEach(i => {
-      const p = s.players[i]; if (!p || p.rid !== tv.rid) return;
-      const t = p.done ? p.time : Math.max(0, (now - tv.t0) / 1000) + (+p.wrong || 0) * PENALTY;
-      q(i, '.tv-time').textContent = (t ?? 0).toFixed(2);
-      const want = Math.min(+p.level || 0, LEVELS - 1);
-      if (!p.done && want !== tv.shown[i] && now >= tv.hold[i]) renderTVBoard(i, want);
-    });
-  }
-
-  $('soloBtn').onclick = () => { solo = true; startRound({ id: 'solo' + Date.now(), seed: Math.floor(Math.random()*1e9) }); };
-
-  $('nick').value = store('cd-nick') || '';
+  window.addEventListener('resize', () => { if (host) host.dirty = true; });
+  window.addEventListener('beforeunload', e => { if (host && host.players.size) { e.preventDefault(); e.returnValue = ''; } });
 })();
 </script>
 </body>

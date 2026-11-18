@@ -1,30 +1,26 @@
 # Color Duel
 
-A two-player, head-to-head color perception race for team events.
+A color perception race for team events. Everyone plays on their phone at the same time, and the TV shows a live ranking.
 
 **Play:** https://tengfanfan1031.github.io/color-duel/
 
 - 20 levels, easy to hard: the grid grows from 3×3 to 8×8. Levels 1–17 ease you in (lightness gap 20% down to about 5%); the last 3 levels are the real challenge (3%, 2.4%, 1.8%).
 - Find the one tile with a different shade. Each wrong tap adds 3 seconds.
-- Both players get the exact same puzzles. Fastest total time across all 20 levels wins.
+- Everyone gets the exact same puzzles. Fastest total time wins.
 
-## How to play
+## Running the event
 
-1. Open the link and enter your name.
-2. One player taps **Create room** and shares the 4-character code.
-3. The other enters the code and taps **Join**.
-4. Both tap **I'm ready** and the countdown begins.
+1. On the computer connected to the TV, open the link and tap **Host on TV**. The TV shows a QR code and a 4-character room code.
+2. Players scan the QR code (or open the link and type the code), enter their name and tap **Join the game**. Their names appear on the TV.
+3. When everyone is in, tap **Start** on the TV. Everyone gets a 3-2-1 countdown and plays at once.
+4. The TV shows a live ranking of all players: finished players by total time, everyone else by level reached.
+5. When everyone has finished, the TV shows the podium and the final ranking. Tap **End round** to stop early.
+6. Tap **New round** to play again with the same room. Players stay connected.
 
-You can also tap **Practice solo** to play alone.
+Up to 80 players per room. Keep the TV computer awake and on this page for the whole event: it hosts the room.
 
-## Show the match on a TV
-
-1. Open the link on the computer connected to the TV.
-2. Enter the room code and tap **Watch on TV**.
-3. The TV shows both players' boards side by side, live timers, levels, misses, and the winner. When a player finds the odd tile, it is briefly outlined in green so the audience can see the answer.
-
-Several TV views can watch the same room.
+You can also tap **Practice solo** on a phone to play alone.
 
 ## Tech
 
-A single `index.html` with no server or accounts. Multiplayer uses [PeerJS](https://peerjs.com/) (WebRTC) to connect the two browsers directly.
+A single `index.html` with no server or accounts. Multiplayer uses [PeerJS](https://peerjs.com/) (WebRTC): each phone connects directly to the TV computer, which keeps the ranking.
