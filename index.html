@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Color Duel</title>
+<title>色感對決 Color Duel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
 <style>
 /* 版面概念：驗光室的中性灰背景（避免干擾色彩判斷）。手機是答題卡，電視是房主兼即時排行榜 */
 :root {
@@ -20,8 +20,8 @@
   --gold: #b8860b;
   --silver: #7c8590;
   --bronze: #a0522d;
-  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Inter", "Noto Sans TC", system-ui, sans-serif;
+  --font-body: "Inter", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #2a2b2d; --panel: #343538; --ink: #ececee; --muted: #a2a5ab; --line: #47494d;
@@ -31,7 +31,12 @@
   --accent: #7a9bff; --ok: #5fcf8d; --bad: #ff6f63; --gold: #e8b931; --silver: #b9c1cb; --bronze: #d98a5a; color-scheme: dark }
 
 [hidden] { display: none !important; }
-html, body { height: 100%; }
+/* 中英雙語：中文為主，英文為輔 */
+.en { font-weight: 500; opacity: .72; margin-left: .4em; font-size: .86em; }
+.en.blk { display: block; margin-left: 0; margin-top: 2px; }
+button .en { opacity: .8; }
+html { height: 100%; }
+body { min-height: 100%; box-sizing: border-box; }
 body {
   margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
@@ -75,7 +80,7 @@ button:focus-visible, .tile:focus-visible, input:focus-visible { outline: 3px so
 .lv { font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
 .lv span { font-size: 16px; color: var(--muted); }
 .timer { font-family: var(--font-display); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; text-align: right; }
-.meta { grid-column: 1 / 3; display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta { grid-column: 1 / 3; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .meta b { color: var(--ink); }
 .board {
   --n: 3; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 6px;
@@ -131,7 +136,7 @@ body.tv .wrap { display: none; }
 
 /* 排行榜：依名次直向排，人多時自動分欄 */
 .board-list { display: grid; grid-auto-flow: column; gap: .6vh 2.4vw; }
-.rk { display: grid; grid-template-columns: 2.4em minmax(0, 1fr) 5.2em; align-items: center; gap: .7em; padding: .35em .7em; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); font-size: var(--rk-size, clamp(14px, 1.6vh, 26px)); position: relative; overflow: hidden; }
+.rk { display: grid; grid-template-columns: 2.4em minmax(0, 1fr) 5.2em; align-items: center; gap: .7em; padding: .3em .7em; line-height: 1.35; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); font-size: var(--rk-size, clamp(14px, 1.6vh, 26px)); position: relative; overflow: hidden; }
 .rk .bar { position: absolute; inset: 0 auto 0 0; background: color-mix(in oklab, var(--accent) 16%, transparent); transition: width .4s ease; z-index: 0; }
 .rk > *:not(.bar) { position: relative; z-index: 1; }
 .rk .no { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -163,46 +168,46 @@ body.tv .wrap { display: none; }
 
 <div class="wrap">
   <header>
-    <h1>Color Duel<small>SPOT THE SHADE</small></h1>
-    <div class="conn"><span class="dot" id="dot"></span><span id="connTxt">Offline</span></div>
+    <h1>色感對決<small>COLOR DUEL</small></h1>
+    <div class="conn"><span class="dot" id="dot"></span><span id="connTxt">離線 Offline</span></div>
   </header>
 
   <!-- 大廳 -->
   <section id="lobby" class="card">
-    <h2>Everyone plays at once. Fastest eye wins.</h2>
-    <p class="hint">Each level has one tile with a slightly different shade. Tap it to advance. Every wrong tap adds 3 seconds. 20 levels, easy to hard; the last 3 are the real test.</p>
+    <h2>全員同時開賽，眼力最快的人贏<span class="en blk">Everyone plays at once. Fastest eye wins.</span></h2>
+    <p class="hint">每關有一格顏色稍微不同，點中就過關，點錯加 3 秒。共 20 關由淺入深，最後 2 關才是真正的考驗。<span class="en blk">Find the one tile with a different shade. Each wrong tap adds 3 s. 20 levels, easy to hard; only the last 2 are tough.</span></p>
     <div>
-      <label for="nick">Your name</label>
-      <input type="text" id="nick" maxlength="14" placeholder="e.g. Alex" autocomplete="off">
+      <label for="nick">你的名字 · Your name</label>
+      <input type="text" id="nick" maxlength="14" placeholder="例如 e.g. Alex" autocomplete="off">
     </div>
     <div>
-      <label for="code">Room code (shown on the TV)</label>
-      <input type="text" id="code" maxlength="6" autocomplete="off" placeholder="e.g. K7QH">
+      <label for="code">房間代碼（電視上顯示）· Room code</label>
+      <input type="text" id="code" maxlength="6" autocomplete="off" placeholder="K7QH">
     </div>
     <div class="row">
-      <button id="joinBtn">Join the game</button>
-      <button id="soloBtn" class="ghost">Practice solo</button>
+      <button id="joinBtn">加入遊戲<span class="en">Join</span></button>
+      <button id="soloBtn" class="ghost">單人練習<span class="en">Practice</span></button>
     </div>
-    <p class="hint" id="lobbyMsg">Scan the QR code on the TV, or type the room code above.</p>
+    <p class="hint" id="lobbyMsg">掃描電視上的 QR code，或輸入房間代碼。<span class="en blk">Scan the QR code on the TV, or type the room code.</span></p>
     <hr class="divider">
     <div class="row" style="align-items:center">
-      <p class="hint" style="flex:2 1 220px">Running the event? Open this page on the computer connected to the TV and host the room there.</p>
-      <button id="hostBtn" class="ghost">Host on TV</button>
+      <p class="hint" style="flex:2 1 220px">主持人：請在接電視的電腦打開本頁開房。<span class="en blk">Host: open this page on the computer connected to the TV.</span></p>
+      <button id="hostBtn" class="ghost">在電視開房<span class="en">Host on TV</span></button>
     </div>
     <div class="legend" aria-label="Difficulty">
-      <div>Lv 1–4<br>3–4 grid</div><div>Lv 5–9<br>4–5 grid</div><div>Lv 10–14<br>5–6 grid</div><div>Lv 15–17<br>6–7 grid</div><div>Lv 18–20<br>Hard</div>
+      <div>1–4 關<br>3–4 格</div><div>5–9 關<br>4–5 格</div><div>10–14 關<br>5–6 格</div><div>15–18 關<br>6–7 格</div><div>19–20 關<br>困難 Hard</div>
     </div>
   </section>
 
   <!-- 已加入，等待開局 -->
   <section id="wait" class="card" hidden>
     <div class="row" style="align-items:center">
-      <div><label>Room</label><div class="codebig" id="waitCode"></div></div>
-      <button id="leaveBtn" class="ghost" style="flex:0 0 auto">Leave</button>
+      <div><label>房間 · Room</label><div class="codebig" id="waitCode"></div></div>
+      <button id="leaveBtn" class="ghost" style="flex:0 0 auto">離開<span class="en">Leave</span></button>
     </div>
-    <p class="big-msg" id="waitTitle">You’re in!</p>
-    <button id="readyBtn">I’m ready</button>
-    <p class="hint" id="waitMsg">Tap “I’m ready”. The game starts for everyone at once when the host taps Start on the TV.</p>
+    <p class="big-msg" id="waitTitle">已加入！<span class="en">You’re in!</span></p>
+    <button id="readyBtn">我準備好了<span class="en">I’m ready</span></button>
+    <p class="hint" id="waitMsg">請按「我準備好了」。主持人在電視按開始後，所有人會同時開賽。<span class="en blk">Tap “I’m ready”. Everyone starts together when the host taps Start.</span></p>
   </section>
 
   <!-- 倒數 -->
@@ -213,42 +218,42 @@ body.tv .wrap { display: none; }
     <div class="hud">
       <div class="lv" id="lvTxt">1<span> / 20</span></div>
       <div class="timer" id="timer">0.00</div>
-      <div class="meta"><span id="deltaTxt"></span><span id="rankTxt"></span><span id="wrongTxt">0 misses</span></div>
+      <div class="meta"><span id="deltaTxt"></span><span id="rankTxt"></span><span id="wrongTxt">點錯 0 · Misses</span></div>
     </div>
     <div class="board" id="board" style="margin-top:10px"></div>
   </section>
 
   <!-- 結果 -->
   <section id="result" class="card result" hidden>
-    <h2 id="resTitle">Finished!</h2>
+    <h2 id="resTitle">完成！<span class="en">Finished!</span></h2>
     <div class="stat">
-      <div><span>YOUR TIME</span><b id="resTime">—</b></div>
-      <div><span>RANK</span><b id="resRank">—</b></div>
+      <div><span>你的時間 · TIME</span><b id="resTime">—</b></div>
+      <div><span>名次 · RANK</span><b id="resRank">—</b></div>
     </div>
     <p class="hint" id="resMsg"></p>
-    <div class="row"><button id="againBtn" hidden>Practice again</button></div>
+    <div class="row"><button id="againBtn" hidden>再練一次<span class="en">Again</span></button></div>
   </section>
 </div>
 
 <!-- 電視（房主）-->
 <section id="tv" hidden>
   <div class="tv-top">
-    <h1 class="tv-title">Color Duel</h1>
-    <div class="tv-join">Join at <span class="url" id="tvUrl"></span> · Room <b id="tvCode"></b></div>
+    <h1 class="tv-title">色感對決 <span class="en">Color Duel</span></h1>
+    <div class="tv-join">加入 Join：<span class="url" id="tvUrl"></span> · 房間 Room <b id="tvCode"></b></div>
   </div>
   <div class="tv-bar">
-    <div class="tv-status" id="tvStatus">Waiting for players<small></small></div>
+    <div class="tv-status" id="tvStatus">等待玩家 Waiting<small></small></div>
     <div class="tv-clock" id="tvClock" hidden>0.00</div>
     <div class="tv-btns">
-      <button id="startBtn" disabled>Start</button>
-      <button id="endBtn" class="ghost" hidden>End round</button>
-      <button id="newBtn" hidden>New round</button>
+      <button id="startBtn" disabled>開始 Start</button>
+      <button id="endBtn" class="ghost" hidden>結束本局<span class="en">End round</span></button>
+      <button id="newBtn" hidden>再來一局<span class="en">New round</span></button>
     </div>
   </div>
 
   <div class="tv-lobby" id="tvLobby">
-    <div><div class="tv-qr" id="tvQr"></div><div class="tv-qr-cap">Scan to join</div></div>
-    <div class="tv-chips" id="tvChips"><span class="tv-empty">No one has joined yet.</span></div>
+    <div><div class="tv-qr" id="tvQr"></div><div class="tv-qr-cap">掃描加入 · Scan to join</div></div>
+    <div class="tv-chips" id="tvChips"><span class="tv-empty">還沒有人加入 · No one has joined yet</span></div>
   </div>
   <div class="podium" id="tvPodium" hidden></div>
   <div class="board-list" id="tvBoard" hidden></div>
@@ -263,8 +268,8 @@ body.tv .wrap { display: none; }
   const LEVELS = 20, PENALTY = 3, PREFIX = 'colorduel-tw-', MAX_PLAYERS = 80;
   // 由易到難：格數與亮度差（OKLCH 的 L，單位 %）
   const GRID  = [3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,8,8];
-  // 第 1–17 關循序漸進，最後 3 關才明顯變難
-  const DELTA = [20,18,16,14.5,13,12,11,10,9.2,8.5,7.8,7.2,6.6,6.1,5.6,5.2,4.8,3,2.4,1.8];
+  // 第 1–18 關循序漸進（色差都在 5% 以上），只有第 19、20 關明顯變難
+  const DELTA = [20,18.5,17,15.5,14,13,12,11,10.2,9.5,8.8,8.2,7.6,7,6.5,6,5.5,5,2.6,1.8];
   const COUNT_MS = 2400; // 倒數 3-2-1，每格 800ms
 
   const $ = id => document.getElementById(id);
@@ -306,35 +311,35 @@ body.tv .wrap { display: none; }
 
   function renderReady() {
     $('readyBtn').classList.toggle('on', ready);
-    $('readyBtn').textContent = ready ? '✓ Ready — tap to undo' : 'I’m ready';
+    $('readyBtn').innerHTML = ready ? '✓ 已準備<span class="en">Ready · tap to undo</span>' : '我準備好了<span class="en">I’m ready</span>';
   }
   $('readyBtn').onclick = () => { ready = !ready; renderReady(); sendHost({ t: 'ready', v: ready }); };
 
   $('nick').value = store('cd-nick') || '';
   const qsRoom = cleanCode(new URLSearchParams(location.search).get('room'));
-  if (qsRoom) { $('code').value = qsRoom; $('lobbyMsg').textContent = 'Room code filled in. Enter your name and tap “Join the game”.'; }
-  if (typeof Peer === 'undefined') $('lobbyMsg').textContent = 'Could not load the multiplayer module. Check your connection and refresh. Solo practice still works.';
+  if (qsRoom) { $('code').value = qsRoom; $('lobbyMsg').innerHTML = '已填好房間代碼，輸入名字後按「加入遊戲」。<span class="en blk">Room code filled in. Enter your name and tap Join.</span>'; }
+  if (typeof Peer === 'undefined') $('lobbyMsg').innerHTML = '連線元件載入失敗，請確認網路後重新整理（仍可單人練習）。<span class="en blk">Could not load multiplayer. Check your connection and refresh.</span>';
 
   function lockLobby(on) { ['joinBtn','soloBtn','hostBtn'].forEach(id => $(id).disabled = on); }
 
   $('joinBtn').onclick = () => {
     const nick = $('nick').value.trim();
-    if (!nick) { $('lobbyMsg').textContent = 'Please enter your name first.'; $('nick').focus(); return; }
+    if (!nick) { $('lobbyMsg').innerHTML = '請先輸入名字。<span class="en">Please enter your name.</span>'; $('nick').focus(); return; }
     const code = cleanCode($('code').value);
-    if (code.length < 4) { $('lobbyMsg').textContent = 'Enter the 4-character room code shown on the TV.'; $('code').focus(); return; }
+    if (code.length < 4) { $('lobbyMsg').innerHTML = '請輸入電視上的 4 碼房間代碼。<span class="en blk">Enter the 4-character room code on the TV.</span>'; $('code').focus(); return; }
     if (typeof Peer === 'undefined') return;
     store('cd-nick', nick);
     roomCode = code; leaving = false; solo = false;
-    lockLobby(true); $('lobbyMsg').textContent = 'Connecting…';
+    lockLobby(true); $('lobbyMsg').innerHTML = '連線中…<span class="en">Connecting…</span>';
     const p = new Peer();
-    const timer = setTimeout(() => { if (!conn) { $('lobbyMsg').textContent = 'Could not reach that room. Check the code on the TV and try again.'; lockLobby(false); p.destroy(); peer = null; } }, 12000);
+    const timer = setTimeout(() => { if (!conn) { $('lobbyMsg').innerHTML = '連不上這個房間，請確認代碼後再試。<span class="en blk">Could not reach that room. Check the code and try again.</span>'; lockLobby(false); p.destroy(); peer = null; } }, 12000);
     p.on('open', () => { peer = p; connectRoom(nick, () => { clearTimeout(timer); lockLobby(false); }); });
     p.on('error', e => {
       if (e.type === 'peer-unavailable') {
-        if (!conn && screen === 'lobby') { clearTimeout(timer); $('lobbyMsg').textContent = 'No room with that code. Check the TV and try again.'; lockLobby(false); p.destroy(); peer = null; }
+        if (!conn && screen === 'lobby') { clearTimeout(timer); $('lobbyMsg').innerHTML = '找不到這個房間，請確認電視上的代碼。<span class="en blk">No room with that code. Check the TV.</span>'; lockLobby(false); p.destroy(); peer = null; }
         return; // 重連期間找不到房主：等下一次重試
       }
-      if (screen === 'lobby') { clearTimeout(timer); $('lobbyMsg').textContent = 'Connection failed (' + e.type + '). Please try again.'; lockLobby(false); }
+      if (screen === 'lobby') { clearTimeout(timer); $('lobbyMsg').innerHTML = '連線失敗（' + esc(e.type) + '），請再試一次。<span class="en blk">Connection failed. Please try again.</span>'; lockLobby(false); }
     });
     p.on('disconnected', () => { if (!leaving && peer === p && !p.destroyed) { try { p.reconnect(); } catch {} } });
   };
@@ -343,7 +348,7 @@ body.tv .wrap { display: none; }
     if (!peer || leaving) return;
     const c = peer.connect(PREFIX + roomCode.toLowerCase(), { reliable: true, metadata: { cid, nick } });
     c.on('open', () => {
-      conn = c; setConn(true, 'Connected');
+      conn = c; setConn(true, '已連線 Connected');
       if (onFirstOpen) { onFirstOpen(); onFirstOpen = null; $('waitCode').textContent = roomCode; if (screen === 'lobby') show('wait'); }
       if (lastProg) c.send(lastProg); // 重連後補送最新進度
     });
@@ -352,7 +357,7 @@ body.tv .wrap { display: none; }
       if (conn !== c) return;
       conn = null;
       if (leaving) return;
-      setConn(false, 'Reconnecting…');
+      setConn(false, '重新連線中 Reconnecting…');
       clearTimeout(retryTimer);
       retryTimer = setTimeout(() => connectRoom(nick), 2500);
     });
@@ -364,26 +369,26 @@ body.tv .wrap { display: none; }
   function onHostMsg(m) {
     if (!m || typeof m !== 'object') return;
     if (m.t === 'welcome') {
-      $('waitTitle').textContent = `You’re in, ${m.nick}!`;
-      if (m.phase === 'race' && (!game || game.rid !== m.rid)) $('waitMsg').textContent = 'A round is already running. You’ll join the next one.';
+      $('waitTitle').innerHTML = `${esc(m.nick)}，已加入！<span class="en">You’re in!</span>`;
+      if (m.phase === 'race' && (!game || game.rid !== m.rid)) $('waitMsg').innerHTML = '這局已經開始了，請等下一局。<span class="en blk">A round is running. You’ll join the next one.</span>';
       if (m.phase === 'lobby' && ready) sendHost({ t: 'ready', v: true }); // 重連後補回準備狀態
     }
-    if (m.t === 'full') { leaving = true; $('lobbyMsg').textContent = 'This room is full.'; show('lobby'); setConn(false, 'Offline'); }
-    if (m.t === 'count' && screen === 'wait') $('waitMsg').textContent = `${m.r || 0} of ${m.n} ${m.n === 1 ? 'player' : 'players'} ready. The game starts for everyone at once when the host taps Start on the TV.`;
+    if (m.t === 'full') { leaving = true; $('lobbyMsg').innerHTML = '房間已滿。<span class="en">This room is full.</span>'; show('lobby'); setConn(false, '離線 Offline'); }
+    if (m.t === 'count' && screen === 'wait') $('waitMsg').innerHTML = `已準備 ${m.r || 0} / ${m.n} 人。主持人按開始後，所有人會同時開賽。<span class="en blk">${m.r || 0} of ${m.n} ready. Everyone starts together when the host taps Start.</span>`;
     if (m.t === 'start' && m.rid && (!game || game.rid !== m.rid)) startRound(m.rid, +m.seed);
     if (m.t === 'rank') { myRank = m; renderRank(); }
     if (m.t === 'end' && game && game.rid === m.rid) {
-      if (!game.done) { game.done = true; cancelAnimationFrame(game.raf); show('result'); $('resTitle').textContent = 'Time’s up!'; $('resTime').textContent = `Lv ${game.i + 1}`; }
+      if (!game.done) { game.done = true; cancelAnimationFrame(game.raf); show('result'); $('resTitle').innerHTML = '時間到！<span class="en">Time’s up!</span>'; $('resTime').textContent = `第 ${game.i + 1} 關`; }
       renderRank();
     }
-    if (m.t === 'lobby') { game = null; myRank = null; lastProg = null; ready = false; renderReady(); show('wait'); $('waitMsg').textContent = 'Next round coming up. Tap “I’m ready” when you are.'; }
+    if (m.t === 'lobby') { game = null; myRank = null; lastProg = null; ready = false; renderReady(); show('wait'); $('waitMsg').innerHTML = '下一局即將開始，請按「我準備好了」。<span class="en blk">Next round coming up. Tap “I’m ready”.</span>'; }
   }
 
   $('leaveBtn').onclick = () => {
     leaving = true; clearTimeout(retryTimer);
     try { conn?.close(); } catch {} try { peer?.destroy(); } catch {}
-    conn = null; peer = null; game = null; lastProg = null; ready = false; renderReady(); setConn(false, 'Offline'); show('lobby');
-    $('lobbyMsg').textContent = 'You left the room.';
+    conn = null; peer = null; game = null; lastProg = null; ready = false; renderReady(); setConn(false, '離線 Offline'); show('lobby');
+    $('lobbyMsg').innerHTML = '你已離開房間。<span class="en">You left the room.</span>';
   };
 
   // ---------- 答題 ----------
@@ -419,11 +424,11 @@ body.tv .wrap { display: none; }
     const lv = game.levels[game.i];
     $('lvTxt').innerHTML = `${game.i + 1}<span> / ${LEVELS}</span>`;
     $('deltaTxt').textContent = `${lv.n}×${lv.n} · ΔL ${lv.d}%`;
-    $('wrongTxt').textContent = `${game.wrong} ${game.wrong === 1 ? 'miss' : 'misses'}`;
+    $('wrongTxt').textContent = `點錯 ${game.wrong} · Misses`;
     const b = $('board'); b.style.setProperty('--n', lv.n);
     b.style.gap = lv.n >= 7 ? '4px' : '6px';
     let html = '';
-    for (let k = 0; k < lv.n * lv.n; k++) html += `<button class="tile" data-k="${k}" aria-label="Tile ${k+1}" style="background:${k === lv.odd ? lv.diff : lv.base}"></button>`;
+    for (let k = 0; k < lv.n * lv.n; k++) html += `<button class="tile" data-k="${k}" aria-label="色塊 Tile ${k+1}" style="background:${k === lv.odd ? lv.diff : lv.base}"></button>`;
     b.innerHTML = html;
   }
 
@@ -439,7 +444,7 @@ body.tv .wrap { display: none; }
   function pick(k) {
     const lv = game.levels[game.i];
     if (k !== lv.odd) {
-      game.wrong++; $('wrongTxt').textContent = `${game.wrong} ${game.wrong === 1 ? 'miss' : 'misses'}`;
+      game.wrong++; $('wrongTxt').textContent = `點錯 ${game.wrong} · Misses`;
       const b = $('board'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
       const f = $('flash'); f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
       report();
@@ -455,19 +460,19 @@ body.tv .wrap { display: none; }
     game.time = Math.round(elapsed() * 100) / 100;
     report();
     show('result');
-    $('resTitle').textContent = solo ? 'Practice complete!' : 'You finished!';
+    $('resTitle').innerHTML = solo ? '練習完成！<span class="en">Practice complete!</span>' : '完成！<span class="en">You finished!</span>';
     $('resTime').textContent = fmt(game.time);
     $('againBtn').hidden = !solo;
     renderRank();
   }
 
   function renderRank() {
-    if (solo) { $('resRank').textContent = '—'; $('resMsg').textContent = `${game.wrong} misses (+${PENALTY} s each).`; return; }
-    if (!myRank) { $('resRank').textContent = '…'; $('resMsg').textContent = 'Check the TV for the live ranking.'; return; }
-    $('rankTxt').innerHTML = `Rank <b>${myRank.rank}</b> / ${myRank.n}`;
-    $('resRank').textContent = `${ord(myRank.rank)}`;
+    if (solo) { $('resRank').textContent = '—'; $('resMsg').textContent = `點錯 ${game.wrong} 次（每次 +${PENALTY} 秒）· ${game.wrong} misses (+${PENALTY} s each)`; return; }
+    if (!myRank) { $('resRank').textContent = '…'; $('resMsg').innerHTML = '請看電視上的即時排名。<span class="en">Check the TV for the live ranking.</span>'; return; }
+    $('rankTxt').innerHTML = `排名 Rank <b>${myRank.rank}</b> / ${myRank.n}`;
+    $('resRank').textContent = `#${myRank.rank}`;
     const left = myRank.n - myRank.finished;
-    $('resMsg').textContent = left > 0 ? `of ${myRank.n} players · ${left} still playing. Check the TV for the full ranking.` : `of ${myRank.n} players. Check the TV for the podium!`;
+    $('resMsg').innerHTML = left > 0 ? `共 ${myRank.n} 人，還有 ${left} 人在玩，完整排名請看電視。<span class="en blk">${myRank.n} players · ${left} still playing. See the TV for the full ranking.</span>` : `共 ${myRank.n} 人，全部完成！請看電視頒獎台。<span class="en blk">All ${myRank.n} players done. See the TV for the podium!</span>`;
   }
 
   // ---------- 單人練習 ----------
@@ -483,7 +488,7 @@ body.tv .wrap { display: none; }
 
   $('hostBtn').onclick = () => {
     if (typeof Peer === 'undefined') return;
-    lockLobby(true); $('lobbyMsg').textContent = 'Opening the room…';
+    lockLobby(true); $('lobbyMsg').innerHTML = '開房中…<span class="en">Opening the room…</span>';
     const tryOpen = attempt => {
       const code = randCode();
       const p = new Peer(PREFIX + code.toLowerCase());
@@ -491,7 +496,7 @@ body.tv .wrap { display: none; }
       p.on('connection', onPlayerConn);
       p.on('error', e => {
         if (e.type === 'unavailable-id' && attempt < 4) { p.destroy(); tryOpen(attempt + 1); return; }
-        if (!host) { lockLobby(false); $('lobbyMsg').textContent = 'Could not open a room (' + e.type + '). Please try again.'; p.destroy(); }
+        if (!host) { lockLobby(false); $('lobbyMsg').innerHTML = '開房失敗（' + esc(e.type) + '），請再試一次。<span class="en blk">Could not open a room. Please try again.</span>'; p.destroy(); }
       });
       p.on('disconnected', () => { if (host && host.peer === p && !p.destroyed) { try { p.reconnect(); } catch {} } });
     };
@@ -640,30 +645,30 @@ body.tv .wrap { display: none; }
     if (ph === 'lobby') {
       const nr = ps.filter(P => P.ready).length;
       const allReady = ps.length > 0 && nr === ps.length;
-      $('tvStatus').innerHTML = `${nr} / ${ps.length} ready<small>${allReady ? 'Everyone is ready — tap Start!' : 'Scan the QR code to join, then tap “I’m ready”'}</small>`;
-      $('startBtn').textContent = allReady ? 'Start' : `Start anyway (${nr}/${ps.length})`;
+      $('tvStatus').innerHTML = `已準備 ${nr} / ${ps.length}<small>${allReady ? '全員準備好了，請按開始！ Everyone is ready — tap Start!' : '掃 QR code 加入，再按「我準備好了」 · Scan to join, then tap I’m ready'}</small>`;
+      $('startBtn').textContent = allReady ? '開始 Start' : `直接開始 Start anyway (${nr}/${ps.length})`;
       const chips = [...host.players.values()].sort((a, b) => a.joinedAt - b.joinedAt);
-      $('tvChips').innerHTML = chips.length ? chips.map(P => `<span class="chip${P.online ? '' : ' off'}${P.ready ? ' ready' : ''}">${esc(P.nick)}</span>`).join('') : '<span class="tv-empty">No one has joined yet.</span>';
+      $('tvChips').innerHTML = chips.length ? chips.map(P => `<span class="chip${P.online ? '' : ' off'}${P.ready ? ' ready' : ''}">${esc(P.nick)}</span>`).join('') : '<span class="tv-empty">還沒有人加入 · No one has joined yet</span>';
       return;
     }
 
     const r = ranking(); const fin = r.filter(P => P.done).length;
     $('tvStatus').innerHTML = ph === 'race'
-      ? `Live ranking<small>${fin} of ${r.length} finished</small>`
-      : `Final ranking<small>${fin} of ${r.length} finished</small>`;
+      ? `即時排名 Live ranking<small>${fin} / ${r.length} 完成 finished</small>`
+      : `最終排名 Final ranking<small>${fin} / ${r.length} 完成 finished</small>`;
 
     if (ph === 'end') {
       const [a, b, c] = r;
-      const pod = (P, cls, place) => P ? `<div class="pod ${cls}"><div class="pl">${place}</div><div class="who">${esc(P.nick)}</div><div class="tm">${P.done ? fmt(P.time) : 'Level ' + (P.level + 1)}</div></div>` : '<div></div>';
-      $('tvPodium').innerHTML = pod(b, 's', '2nd') + pod(a, 'g', '1st') + pod(c, 'b', '3rd');
+      const pod = (P, cls, place) => P ? `<div class="pod ${cls}"><div class="pl">${place}</div><div class="who">${esc(P.nick)}</div><div class="tm">${P.done ? fmt(P.time) : '第 ' + (P.level + 1) + ' 關'}</div></div>` : '<div></div>';
+      $('tvPodium').innerHTML = pod(b, 's', '第 2 名 2nd') + pod(a, 'g', '第 1 名 1st') + pod(c, 'b', '第 3 名 3rd');
     }
 
     // 人多時自動分欄，讓 40 人都放得進一個畫面
     const list = ph === 'end' ? r.slice(3) : r;
     const cols = list.length <= 10 ? 1 : list.length <= 30 ? 2 : list.length <= 60 ? 3 : 4;
     const rows = Math.max(1, Math.ceil(list.length / cols));
-    const avail = window.innerHeight * (ph === 'end' ? 0.52 : 0.72);
-    const size = Math.max(14, Math.min(28, avail / rows / 2.0));
+    const avail = window.innerHeight * (ph === 'end' ? 0.6 : 0.72);
+    const size = Math.max(13, Math.min(28, avail / rows / 2.55));
     const el = $('tvBoard');
     el.style.gridTemplateRows = `repeat(${rows}, auto)`;
     el.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
@@ -671,7 +676,7 @@ body.tv .wrap { display: none; }
     const offset = ph === 'end' ? 3 : 0;
     el.innerHTML = list.map((P, i) => {
       const n = i + 1 + offset;
-      const st = P.done ? fmt(P.time) : `Lv ${Math.min(P.level + 1, LEVELS)}`;
+      const st = P.done ? fmt(P.time) : `第 ${Math.min(P.level + 1, LEVELS)} 關`;
       const pct = (P.done ? LEVELS : P.level) / LEVELS * 100;
       const cls = ['rk', P.done ? 'done' : '', P.online ? '' : 'off', n <= 3 ? 'p' + n : ''].join(' ');
       return `<div class="${cls}"><span class="bar" style="width:${pct}%"></span><span class="no">${n}</span><span class="nm">${esc(P.nick)}${P.wrong ? `<small>✕${P.wrong}</small>` : ''}</span><span class="st">${st}</span></div>`;

@@ -1,10 +1,11 @@
-# Color Duel
+# 色感對決 Color Duel
 
 A color perception race for team events. Everyone plays on their phone at the same time, and the TV shows a live ranking.
 
 **Play:** https://tengfanfan1031.github.io/color-duel/
 
-- 20 levels, easy to hard: the grid grows from 3×3 to 8×8. Levels 1–17 ease you in (lightness gap 20% down to about 5%); the last 3 levels are the real challenge (3%, 2.4%, 1.8%).
+- 20 levels, easy to hard: the grid grows from 3×3 to 8×8. Levels 1–18 ease you in (lightness gap 20% down to 5%); only levels 19 and 20 are hard (2.6%, 1.8%).
+- Bilingual interface: Traditional Chinese and English.
 - Find the one tile with a different shade. Each wrong tap adds 3 seconds.
 - Everyone gets the exact same puzzles. Fastest total time wins.
 
