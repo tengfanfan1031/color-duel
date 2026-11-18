@@ -12,10 +12,11 @@ A color perception race for team events. Everyone plays on their phone at the sa
 
 1. On the computer connected to the TV, open the link and tap **Host on TV**. The TV shows a QR code and a 4-character room code.
 2. Players scan the QR code (or open the link and type the code), enter their name and tap **Join the game**. Their names appear on the TV.
-3. When everyone is in, tap **Start** on the TV. Everyone gets a 3-2-1 countdown and plays at once.
-4. The TV shows a live ranking of all players: finished players by total time, everyone else by level reached.
-5. When everyone has finished, the TV shows the podium and the final ranking. Tap **End round** to stop early.
-6. Tap **New round** to play again with the same room. Players stay connected.
+3. Each player taps **I'm ready**. Their name turns green on the TV, which shows how many are ready (e.g. 32 / 40 ready).
+4. When everyone is ready, tap **Start** on the TV. Nobody starts before that: everyone gets the same 3-2-1 countdown and plays at once. (You can also tap **Start anyway** if a few people never tap ready.)
+5. The TV shows a live ranking of all players: finished players by total time, everyone else by level reached.
+6. When everyone has finished, the TV shows the podium and the final ranking. Tap **End round** to stop early.
+7. Tap **New round** to play again with the same room. Players stay connected.
 
 Up to 80 players per room. Keep the TV computer awake and on this page for the whole event: it hosts the room.
 

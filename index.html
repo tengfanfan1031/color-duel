@@ -123,6 +123,9 @@ body.tv .wrap { display: none; }
 .tv-chips { display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; }
 .chip { font-weight: 700; font-size: clamp(15px, 1.5vw, 28px); padding: .35em .8em; border-radius: 99px; background: var(--panel); border: 1px solid var(--line); animation: chipIn .35s ease; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip.off { opacity: .4; }
+.chip.ready { border-color: var(--ok); color: var(--ok); box-shadow: inset 0 0 0 1px var(--ok); }
+.chip.ready::before { content: "✓ "; }
+#readyBtn.on { background: var(--ok); border-color: var(--ok); color: #fff; }
 @keyframes chipIn { from { transform: scale(.6); opacity: 0 } to { transform: none; opacity: 1 } }
 .tv-empty { color: var(--muted); font-size: clamp(16px, 1.6vw, 30px); }
 
@@ -198,7 +201,8 @@ body.tv .wrap { display: none; }
       <button id="leaveBtn" class="ghost" style="flex:0 0 auto">Leave</button>
     </div>
     <p class="big-msg" id="waitTitle">You’re in!</p>
-    <p class="hint" id="waitMsg">Look at the TV. The game starts when the host taps Start.</p>
+    <button id="readyBtn">I’m ready</button>
+    <p class="hint" id="waitMsg">Tap “I’m ready”. The game starts for everyone at once when the host taps Start on the TV.</p>
   </section>
 
   <!-- 倒數 -->
@@ -298,7 +302,13 @@ body.tv .wrap { display: none; }
   //  玩家端（手機）
   // =====================================================================
   let peer = null, conn = null, roomCode = '', leaving = false, retryTimer = 0;
-  let game = null, solo = false, lastProg = null, myRank = null;
+  let game = null, solo = false, lastProg = null, myRank = null, ready = false;
+
+  function renderReady() {
+    $('readyBtn').classList.toggle('on', ready);
+    $('readyBtn').textContent = ready ? '✓ Ready — tap to undo' : 'I’m ready';
+  }
+  $('readyBtn').onclick = () => { ready = !ready; renderReady(); sendHost({ t: 'ready', v: ready }); };
 
   $('nick').value = store('cd-nick') || '';
   const qsRoom = cleanCode(new URLSearchParams(location.search).get('room'));
@@ -356,22 +366,23 @@ body.tv .wrap { display: none; }
     if (m.t === 'welcome') {
       $('waitTitle').textContent = `You’re in, ${m.nick}!`;
       if (m.phase === 'race' && (!game || game.rid !== m.rid)) $('waitMsg').textContent = 'A round is already running. You’ll join the next one.';
+      if (m.phase === 'lobby' && ready) sendHost({ t: 'ready', v: true }); // 重連後補回準備狀態
     }
     if (m.t === 'full') { leaving = true; $('lobbyMsg').textContent = 'This room is full.'; show('lobby'); setConn(false, 'Offline'); }
-    if (m.t === 'count' && screen === 'wait') $('waitMsg').textContent = `${m.n} ${m.n === 1 ? 'player' : 'players'} in the room. Look at the TV — the game starts when the host taps Start.`;
+    if (m.t === 'count' && screen === 'wait') $('waitMsg').textContent = `${m.r || 0} of ${m.n} ${m.n === 1 ? 'player' : 'players'} ready. The game starts for everyone at once when the host taps Start on the TV.`;
     if (m.t === 'start' && m.rid && (!game || game.rid !== m.rid)) startRound(m.rid, +m.seed);
     if (m.t === 'rank') { myRank = m; renderRank(); }
     if (m.t === 'end' && game && game.rid === m.rid) {
       if (!game.done) { game.done = true; cancelAnimationFrame(game.raf); show('result'); $('resTitle').textContent = 'Time’s up!'; $('resTime').textContent = `Lv ${game.i + 1}`; }
       renderRank();
     }
-    if (m.t === 'lobby') { game = null; myRank = null; lastProg = null; show('wait'); $('waitMsg').textContent = 'Next round coming up. Look at the TV.'; }
+    if (m.t === 'lobby') { game = null; myRank = null; lastProg = null; ready = false; renderReady(); show('wait'); $('waitMsg').textContent = 'Next round coming up. Tap “I’m ready” when you are.'; }
   }
 
   $('leaveBtn').onclick = () => {
     leaving = true; clearTimeout(retryTimer);
     try { conn?.close(); } catch {} try { peer?.destroy(); } catch {}
-    conn = null; peer = null; game = null; lastProg = null; setConn(false, 'Offline'); show('lobby');
+    conn = null; peer = null; game = null; lastProg = null; ready = false; renderReady(); setConn(false, 'Offline'); show('lobby');
     $('lobbyMsg').textContent = 'You left the room.';
   };
 
@@ -515,7 +526,7 @@ body.tv .wrap { display: none; }
         // 重名就加編號
         const taken = new Set([...host.players.values()].map(x => x.nick.toLowerCase()));
         if (taken.has(nick.toLowerCase())) { let k = 2; while (taken.has((nick + ' ' + k).toLowerCase())) k++; nick = nick + ' ' + k; }
-        P = { cid: pcid, nick, conn: null, online: false, inRound: false, level: 0, at: 0, wrong: 0, done: false, time: null, joinedAt: Date.now() };
+        P = { cid: pcid, nick, conn: null, online: false, ready: false, inRound: false, level: 0, at: 0, wrong: 0, done: false, time: null, joinedAt: Date.now() };
         host.players.set(pcid, P);
       }
       if (P.conn && P.conn !== c) { try { P.conn.close(); } catch {} }
@@ -525,7 +536,12 @@ body.tv .wrap { display: none; }
       host.dirty = true;
     });
     c.on('data', m => {
-      const P = host && host.players.get(pcid); if (!P || P.conn !== c || !m || m.t !== 'prog') return;
+      const P = host && host.players.get(pcid); if (!P || P.conn !== c || !m) return;
+      if (m.t === 'ready') {
+        if (host.phase === 'lobby') { P.ready = !!m.v; broadcastCount(); host.dirty = true; }
+        return;
+      }
+      if (m.t !== 'prog') return;
       if (host.phase !== 'race' || m.rid !== host.rid || !P.inRound) return;
       P.level = Math.max(0, Math.min(LEVELS, +m.level || 0));
       P.at = Math.max(0, +m.at || 0); P.wrong = Math.max(0, +m.wrong || 0);
@@ -547,7 +563,7 @@ body.tv .wrap { display: none; }
   const online = () => [...host.players.values()].filter(P => P.online && P.conn);
   function sendTo(P, msg) { try { if (P.conn && P.conn.open) P.conn.send(msg); } catch {} }
   function broadcast(msg) { online().forEach(P => sendTo(P, msg)); }
-  function broadcastCount() { if (host.phase === 'lobby') broadcast({ t: 'count', n: online().length }); }
+  function broadcastCount() { if (host.phase === 'lobby') { const ps = online(); broadcast({ t: 'count', n: ps.length, r: ps.filter(P => P.ready).length }); } }
 
   // 排名規則：完成者依總時間；未完成者依關卡（高到低），同關卡依到達時間（早到前）
   function ranking() {
@@ -570,7 +586,7 @@ body.tv .wrap { display: none; }
     if (!host || host.phase !== 'lobby') return;
     const ps = online(); if (!ps.length) return;
     host.rid = 'r' + Date.now().toString(36); host.seed = Math.floor(Math.random() * 1e9);
-    host.players.forEach(P => Object.assign(P, { inRound: P.online, level: 0, at: 0, wrong: 0, done: false, time: null }));
+    host.players.forEach(P => Object.assign(P, { inRound: P.online, ready: false, level: 0, at: 0, wrong: 0, done: false, time: null }));
     host.phase = 'race'; host.t0 = performance.now() + COUNT_MS; host.endAt = 0;
     broadcast({ t: 'start', rid: host.rid, seed: host.seed });
     host.dirty = true; renderHost();
@@ -592,7 +608,7 @@ body.tv .wrap { display: none; }
   $('newBtn').onclick = () => {
     if (!host) return;
     // 離線的人移除，其餘回到大廳
-    [...host.players.values()].forEach(P => { if (!P.online) host.players.delete(P.cid); P.inRound = false; });
+    [...host.players.values()].forEach(P => { if (!P.online) host.players.delete(P.cid); P.inRound = false; P.ready = false; });
     host.phase = 'lobby'; host.rid = null;
     broadcast({ t: 'lobby' }); broadcastCount();
     host.dirty = true; renderHost();
@@ -622,9 +638,12 @@ body.tv .wrap { display: none; }
     $('newBtn').hidden = ph !== 'end';
 
     if (ph === 'lobby') {
-      $('tvStatus').innerHTML = `${ps.length} ${ps.length === 1 ? 'player' : 'players'} joined<small>Scan the QR code or enter the room code</small>`;
+      const nr = ps.filter(P => P.ready).length;
+      const allReady = ps.length > 0 && nr === ps.length;
+      $('tvStatus').innerHTML = `${nr} / ${ps.length} ready<small>${allReady ? 'Everyone is ready — tap Start!' : 'Scan the QR code to join, then tap “I’m ready”'}</small>`;
+      $('startBtn').textContent = allReady ? 'Start' : `Start anyway (${nr}/${ps.length})`;
       const chips = [...host.players.values()].sort((a, b) => a.joinedAt - b.joinedAt);
-      $('tvChips').innerHTML = chips.length ? chips.map(P => `<span class="chip${P.online ? '' : ' off'}">${esc(P.nick)}</span>`).join('') : '<span class="tv-empty">No one has joined yet.</span>';
+      $('tvChips').innerHTML = chips.length ? chips.map(P => `<span class="chip${P.online ? '' : ' off'}${P.ready ? ' ready' : ''}">${esc(P.nick)}</span>`).join('') : '<span class="tv-empty">No one has joined yet.</span>';
       return;
     }
 
