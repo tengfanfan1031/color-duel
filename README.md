@@ -25,4 +25,4 @@ You can also tap **Practice solo** on a phone to play alone.
 
 ## Tech
 
-A single `index.html` with no server or accounts. Multiplayer uses [PeerJS](https://peerjs.com/) (WebRTC): each phone connects directly to the TV computer, which keeps the ranking.
+`index.html` (layout) and `game.js` (game logic), with no server or accounts. Multiplayer uses [PeerJS](https://peerjs.com/) (WebRTC): each phone connects directly to the TV computer, which keeps the ranking.
